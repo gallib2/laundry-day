@@ -1,13 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public class Player : MonoBehaviour
+public class Player : Singleton<Player>
 {
     #region Movement:
     [Header("Movement:")]
     private CharacterController controller;
-    [SerializeField] private float speed = 5.0f;
+    private float currentSpeed;
+    [SerializeField] private float minimumSpeed;
+    [SerializeField] private float maximumSpeed;
+    [SerializeField] private float timeToGetToMaximumSpeed;
+    private bool maximumSpeedReached;
+    private float timePassedSinceStart;
+
     [SerializeField] private float jumpForce = 10.0f;
     [SerializeField] private bool forbidSwitchingLanesWhileAirborne = true;
     [SerializeField] private float gravity = 1.0f;
@@ -15,11 +22,21 @@ public class Player : MonoBehaviour
     private float xVelocity = 0.0f;
 
     private int desiredLane = 1;
+
+    private UInt32 mileageInUnits;
+    public UInt32 MileageInUnits
+    {
+        get { return mileageInUnits; }
+    }
+    private float zAtStart;
+
     #endregion
-    #region Lives:
-    [Header("Lives:")]
+
+    #region Washing Related::
+    [Header("Washing Related:")]
     private int lives;
     [SerializeField] private int LIVES_AT_START = 3;
+    private UInt32 washedItems;
     #endregion
 
     void Start()
@@ -30,20 +47,58 @@ public class Player : MonoBehaviour
 
     private void Initialise()
     {
+        timePassedSinceStart = 0;
+        maximumSpeedReached = false;
         lives = LIVES_AT_START;
-        InformationText.Instance.UpdateText(null, lives.ToString());
-
+        washedItems = 0;
+        mileageInUnits = 0;
+        zAtStart = transform.position.z;
+        InformationText.Instance.UpdateText
+            (null, lives.ToString(), washedItems.ToString(), mileageInUnits.ToString());
     }
 
     void Update()
     {
+        timePassedSinceStart += Time.deltaTime;
+        if(!maximumSpeedReached)
+        {
+            Accelerate();
+        }
         Move();
+        CalculateMileage();
+    }
+
+    private void Accelerate()
+    {
+        float normaliser = maximumSpeed - minimumSpeed;
+        float normalisedSpeed = (timePassedSinceStart / (timeToGetToMaximumSpeed / normaliser)) + minimumSpeed;
+        if(normalisedSpeed < maximumSpeed)
+        {
+            currentSpeed = normalisedSpeed;
+        }
+        else
+        {
+            maximumSpeedReached = true;
+            currentSpeed = maximumSpeed;
+            Debug.Log("Maximum speed reached!");
+        }
+
+    }
+
+    private void CalculateMileage()
+    {
+        UInt32 newMileage = (UInt32)(transform.position.z - zAtStart);
+        if(newMileage != mileageInUnits)
+        {
+            mileageInUnits = newMileage;
+            InformationText.Instance.UpdateText(null, null, null,mileageInUnits.ToString());
+        }
     }
 
     private void Move()
     {
         Vector3 direction = new Vector3(0, 0, 1);
-        Vector3 velocity = direction * speed;
+        Vector3 velocity = direction * currentSpeed;
 
         if(!forbidSwitchingLanesWhileAirborne || controller.isGrounded)
         {
@@ -72,7 +127,7 @@ public class Player : MonoBehaviour
             targetPosition += Vector3.right * World.LANE_DISTANCE;
         }
 
-        xVelocity = (targetPosition - transform.position).normalized.x * speed;
+        xVelocity = (targetPosition - transform.position).normalized.x * currentSpeed;
 
         CheckJump();
 
@@ -114,7 +169,7 @@ public class Player : MonoBehaviour
                 ClothingType clothingType = clothingItem.ClothingType;
                 if(clothingType == GameManager.ClothingTypeRequired)
                 {
-                    Debug.Log("GOOD!");
+                    WasheItem();
                 }
                 else
                 {
@@ -130,10 +185,16 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void WasheItem()
+    {
+        washedItems += 1;
+        InformationText.Instance.UpdateText(null, null, washedItems.ToString());
+    }
+
     private void LoseALife()
     {
         lives -= 1;
-        if (lives < 0)
+        if (lives <= 0)
         {
             Lose();
             return;
