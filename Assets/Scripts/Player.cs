@@ -1,59 +1,133 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public class Player : MonoBehaviour
+public class Player : Singleton<Player>
 {
+    #region Movement:
+    [Header("Movement:")]
     private CharacterController controller;
-    [SerializeField]
-    private float speed = 5.0f;
-    [SerializeField]
-    private float jumpHeight = 10.0f;
-    [SerializeField]
-    private float gravity = 1.0f;
+    private float currentSpeed;
+    [SerializeField] private float minimumSpeed;
+    [SerializeField] private float maximumSpeed;
+    [SerializeField] private float timeToGetToMaximumSpeed;
+    private bool maximumSpeedReached;
+    private float timePassedSinceStart;
+
+    [SerializeField] private float jumpForce = 10.0f;
+    [SerializeField] private bool forbidSwitchingLanesWhileAirborne = true;
+    [SerializeField] private float gravity = 1.0f;
     private float yVelocity = 0.0f;
     private float xVelocity = 0.0f;
 
-    private const float LANE_DISTANCE = 5.0f;
     private int desiredLane = 1;
+
+    private UInt32 mileageInUnits;
+    public UInt32 MileageInUnits
+    {
+        get { return mileageInUnits; }
+    }
+    private float zAtStart;
+
+    #endregion
+
+    #region Washing Related::
+    [Header("Washing Related:")]
+    private int lives;
+    [SerializeField] private int LIVES_AT_START = 3;
+    private UInt32 washedItems;
+    #endregion
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        Initialise();
+    }
+
+    private void Initialise()
+    {
+        timePassedSinceStart = 0;
+        maximumSpeedReached = false;
+        lives = LIVES_AT_START;
+        washedItems = 0;
+        mileageInUnits = 0;
+        zAtStart = transform.position.z;
+        InformationText.Instance.UpdateText
+            (null, lives.ToString(), washedItems.ToString(), mileageInUnits.ToString());
     }
 
     void Update()
     {
+        timePassedSinceStart += Time.deltaTime;
+        if(!maximumSpeedReached)
+        {
+            Accelerate();
+        }
         Move();
+        CalculateMileage();
+    }
+
+    private void Accelerate()
+    {
+        float normaliser = maximumSpeed - minimumSpeed;
+        float normalisedSpeed = (timePassedSinceStart / (timeToGetToMaximumSpeed / normaliser)) + minimumSpeed;
+        if(normalisedSpeed < maximumSpeed)
+        {
+            currentSpeed = normalisedSpeed;
+        }
+        else
+        {
+            maximumSpeedReached = true;
+            currentSpeed = maximumSpeed;
+            Debug.Log("Maximum speed reached!");
+        }
+
+    }
+
+    private void CalculateMileage()
+    {
+        UInt32 newMileage = (UInt32)(transform.position.z - zAtStart);
+        if(newMileage != mileageInUnits)
+        {
+            mileageInUnits = newMileage;
+            InformationText.Instance.UpdateText(null, null, null,mileageInUnits.ToString());
+        }
     }
 
     private void Move()
     {
         Vector3 direction = new Vector3(0, 0, 1);
-        Vector3 velocity = direction * speed;
+        Vector3 velocity = direction * currentSpeed;
 
-        bool toMoveRight = /*MobileInput.SwipeRight ||*/ Input.GetKeyDown(KeyCode.RightArrow);
-        bool toMoveLeft = /*MobileInput.SwipeLeft ||*/ Input.GetKeyDown(KeyCode.LeftArrow);
-        if (toMoveLeft)
+        if(!forbidSwitchingLanesWhileAirborne || controller.isGrounded)
         {
-            MoveLane(false);
+            bool toMoveRight = /*MobileInput.SwipeRight ||*/
+            Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D);
+            bool toMoveLeft = /*MobileInput.SwipeLeft ||*/
+                Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A);
+            if (toMoveLeft)
+            {
+                MoveLane(false);
+            }
+            if (toMoveRight)
+            {
+                MoveLane(true);
+            }
         }
-        if (toMoveRight)
-        {
-            MoveLane(true);
-        }
+        
 
         Vector3 targetPosition = transform.position.z * Vector3.forward;
         if (desiredLane == (int)Lane.Left)
         {
-            targetPosition += Vector3.left * LANE_DISTANCE;
+            targetPosition += Vector3.left * World.LANE_DISTANCE;
         }
         else if (desiredLane == (int)Lane.Right)
         {
-            targetPosition += Vector3.right * LANE_DISTANCE;
+            targetPosition += Vector3.right * World.LANE_DISTANCE;
         }
 
-        xVelocity = (targetPosition - transform.position).normalized.x * speed;
+        xVelocity = (targetPosition - transform.position).normalized.x * currentSpeed;
 
         CheckJump();
 
@@ -75,13 +149,68 @@ public class Player : MonoBehaviour
             bool toJump = Input.GetKeyDown(KeyCode.Space);
             if (toJump)
             {
-                yVelocity = jumpHeight;
+                yVelocity = jumpForce;
             }
         }
         else
         {
-            yVelocity -= gravity;
+            yVelocity -= gravity * Time.deltaTime;
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Interactable interactable = other.GetComponent<Interactable>();
+        if (interactable != null)
+        {
+            if(interactable is ClothingItem)
+            {
+                ClothingItem clothingItem = interactable as ClothingItem;
+                ClothingType clothingType = clothingItem.ClothingType;
+                if(clothingType == GameManager.ClothingTypeRequired)
+                {
+                    WasheItem();
+                }
+                else
+                {
+                    LoseALife();
+                }
+            }
+            else if (interactable is ExtraLifeItem)
+            {
+                GainALife();
+            }
+
+            interactable.Interact();
+        }
+    }
+
+    private void WasheItem()
+    {
+        washedItems += 1;
+        InformationText.Instance.UpdateText(null, null, washedItems.ToString());
+    }
+
+    private void LoseALife()
+    {
+        lives -= 1;
+        if (lives <= 0)
+        {
+            Lose();
+            return;
+        }
+        InformationText.Instance.UpdateText(null, lives.ToString());
+    }
+
+    private void GainALife()
+    {
+        lives += 1;
+        InformationText.Instance.UpdateText(null, lives.ToString());
+    }
+
+    private void Lose()
+    {
+        Destroy(gameObject);
     }
 }
 
