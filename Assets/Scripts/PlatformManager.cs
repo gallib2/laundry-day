@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class PlatformManager : Singleton<PlatformManager>
 {
-    [SerializeField]
-    private GameObject[] platformPrefabs;
+    [SerializeField] private GameObject[] platformPrefabs;
     private float zPositionOffset = 0.0f;
 
     private const float Z_PLATFORM_SIZE = 100.0f;

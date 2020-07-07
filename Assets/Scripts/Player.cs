@@ -4,22 +4,35 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    #region Movement:
+    [Header("Movement:")]
     private CharacterController controller;
-    [SerializeField]
-    private float speed = 5.0f;
-    [SerializeField]
-    private float jumpHeight = 10.0f;
-    [SerializeField]
-    private float gravity = 1.0f;
+    [SerializeField] private float speed = 5.0f;
+    [SerializeField] private float jumpForce = 10.0f;
+    [SerializeField] private bool forbidSwitchingLanesWhileAirborne = true;
+    [SerializeField] private float gravity = 1.0f;
     private float yVelocity = 0.0f;
     private float xVelocity = 0.0f;
 
-    private const float LANE_DISTANCE = 5.0f;
     private int desiredLane = 1;
+    #endregion
+    #region Lives:
+    [Header("Lives:")]
+    private int lives;
+    [SerializeField] private int LIVES_AT_START = 3;
+    #endregion
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        Initialise();
+    }
+
+    private void Initialise()
+    {
+        lives = LIVES_AT_START;
+        InformationText.Instance.UpdateText(null, lives.ToString());
+
     }
 
     void Update()
@@ -32,25 +45,31 @@ public class Player : MonoBehaviour
         Vector3 direction = new Vector3(0, 0, 1);
         Vector3 velocity = direction * speed;
 
-        bool toMoveRight = /*MobileInput.SwipeRight ||*/ Input.GetKeyDown(KeyCode.RightArrow);
-        bool toMoveLeft = /*MobileInput.SwipeLeft ||*/ Input.GetKeyDown(KeyCode.LeftArrow);
-        if (toMoveLeft)
+        if(!forbidSwitchingLanesWhileAirborne || controller.isGrounded)
         {
-            MoveLane(false);
+            bool toMoveRight = /*MobileInput.SwipeRight ||*/
+            Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D);
+            bool toMoveLeft = /*MobileInput.SwipeLeft ||*/
+                Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A);
+            if (toMoveLeft)
+            {
+                MoveLane(false);
+            }
+            if (toMoveRight)
+            {
+                MoveLane(true);
+            }
         }
-        if (toMoveRight)
-        {
-            MoveLane(true);
-        }
+        
 
         Vector3 targetPosition = transform.position.z * Vector3.forward;
         if (desiredLane == (int)Lane.Left)
         {
-            targetPosition += Vector3.left * LANE_DISTANCE;
+            targetPosition += Vector3.left * World.LANE_DISTANCE;
         }
         else if (desiredLane == (int)Lane.Right)
         {
-            targetPosition += Vector3.right * LANE_DISTANCE;
+            targetPosition += Vector3.right * World.LANE_DISTANCE;
         }
 
         xVelocity = (targetPosition - transform.position).normalized.x * speed;
@@ -75,13 +94,62 @@ public class Player : MonoBehaviour
             bool toJump = Input.GetKeyDown(KeyCode.Space);
             if (toJump)
             {
-                yVelocity = jumpHeight;
+                yVelocity = jumpForce;
             }
         }
         else
         {
-            yVelocity -= gravity;
+            yVelocity -= gravity * Time.deltaTime;
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Interactable interactable = other.GetComponent<Interactable>();
+        if (interactable != null)
+        {
+            if(interactable is ClothingItem)
+            {
+                ClothingItem clothingItem = interactable as ClothingItem;
+                ClothingType clothingType = clothingItem.ClothingType;
+                if(clothingType == GameManager.ClothingTypeRequired)
+                {
+                    Debug.Log("GOOD!");
+                }
+                else
+                {
+                    LoseALife();
+                }
+            }
+            else if (interactable is ExtraLifeItem)
+            {
+                GainALife();
+            }
+
+            interactable.Interact();
+        }
+    }
+
+    private void LoseALife()
+    {
+        lives -= 1;
+        if (lives < 0)
+        {
+            Lose();
+            return;
+        }
+        InformationText.Instance.UpdateText(null, lives.ToString());
+    }
+
+    private void GainALife()
+    {
+        lives += 1;
+        InformationText.Instance.UpdateText(null, lives.ToString());
+    }
+
+    private void Lose()
+    {
+        Destroy(gameObject);
     }
 }
 
