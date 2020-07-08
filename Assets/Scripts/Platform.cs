@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class Platform : MonoBehaviour
 {
-    private void OnBecameInvisible()
+    private const float RECYCLE_DISTANCE = 200f;
+
+    private void Update()
     {
-        PlatformManager.Instance?.RecyclePlatform(gameObject);
+        if(transform.position.z < Player.Instance.transform.position.z - RECYCLE_DISTANCE)
+        {
+            PlatformManager.Instance?.RecyclePlatform(gameObject);
+        }
     }
 }
