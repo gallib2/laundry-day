@@ -7,12 +7,13 @@ using UnityEngine;
 
 public class InteractablesManager : Singleton<InteractablesManager>
 {
-    private bool initialised = false;
-
     [SerializeField] private ClothingItem[] clothingItemsPreFabs;
     [SerializeField] private ExtraLifeItem extraLifeItemPreFab;
     private static List< ClothingItem> clothingItemsPool;
     private static List<ExtraLifeItem> extraLifeItemsPool;
+    private static List<Interactable> lentInteractables;
+
+    List<Interactable> interactablesToBeSpawned;
 
     [SerializeField] Player player;
     [SerializeField] private float spawnDistanceFromPlayer;
@@ -23,18 +24,29 @@ public class InteractablesManager : Singleton<InteractablesManager>
     [SerializeField] private UInt32 maximumUnitsBetweenExtraLifeItemSpawns;
     private UInt32 nextClothingItemSpawn;
     private UInt32 nextExtraLifeItemSpawn;
-    [SerializeField] private ClothingItemsGenerationPoint[] clothingItemsGenerationPoints;
 
+    [SerializeField] private ClothingItemsGenerationPoint[] clothingItemsGenerationPoints;
     [Serializable]
     private struct ClothingItemsGenerationPoint
     {
         public UInt32 mileage;
         public int maxClothingItemsGenerated;
     }
+
     private SpawnSpot[,] spawnSpots;
     private enum SpawnSpot : byte
     {
         FREE = 0, OCCUPIED = 1,
+    }
+
+    private void OnEnable()
+    {
+        GameManager.OnRestart += Initialise;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRestart -= Initialise;
     }
 
     private void Start()
@@ -44,14 +56,41 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
     private void Initialise()
     {
+        Debug.Log("InteractablesManager Initialise");
         InitialisePools();
         InitialiseSpawnSpots();
-        initialised = true;
+        InitialiseInteractablesToBeSpawned();
+        nextClothingItemSpawn = 0;
+        nextExtraLifeItemSpawn = 0;
+    }
+
+    private void InitialiseInteractablesToBeSpawned()
+    {
+        if (interactablesToBeSpawned == null)
+        {
+            interactablesToBeSpawned = new List<Interactable>();
+        }
+        interactablesToBeSpawned.Clear();
     }
 
     private void InitialiseSpawnSpots()
     {
-        spawnSpots = new SpawnSpot[World.NUMBER_OF_LANES, World.NUMBER_OF_VERTICAL_DIVISIONS_PER_LANE];
+        if(spawnSpots == null)
+        {
+            spawnSpots = new SpawnSpot[World.NUMBER_OF_LANES, World.NUMBER_OF_VERTICAL_DIVISIONS_PER_LANE];
+        }
+        ClearSpawnSpots();
+    }
+
+    private void ClearSpawnSpots()
+    {
+        for (int x = 0; x < spawnSpots.GetLength(0); x++)
+        {
+            for (int y = 0; y < spawnSpots.GetLength(1); y++)
+            {
+                spawnSpots[x, y] = SpawnSpot.FREE;
+            }
+        }
     }
 
     private void InitialisePools()
@@ -81,34 +120,24 @@ public class InteractablesManager : Singleton<InteractablesManager>
             }
         }
 
+        if (lentInteractables == null)
+        {
+            lentInteractables = new List<Interactable>();
+        }
+
+        RecycleAllInteractables();
     }
 
     private void Update()
     {
-        if (!initialised)
+        if (!GameManager.GameIsOver && !GameManager.GameIsPaused)
         {
-            return;
+            ManageSpawning();
         }
-        ManageSpawning();
     }
-
-    List<Interactable> interactablesToBeSpawned = new List<Interactable>();
 
     private void ManageSpawning()
     {
-        //Clear spawnSpots
-        for (int x = 0; x < spawnSpots.GetLength(0); x++)
-        {
-            for (int y = 0; y < spawnSpots.GetLength(1); y++)
-            {
-                spawnSpots[x, y] = SpawnSpot.FREE;
-            }
-        }
-        if (interactablesToBeSpawned.Count > 0)
-        {
-            interactablesToBeSpawned.Clear();
-        }
-
         UInt32 playerMileage = Player.Instance.MileageInUnits;
         if (playerMileage >= nextClothingItemSpawn)
         {
@@ -138,27 +167,32 @@ public class InteractablesManager : Singleton<InteractablesManager>
                   UnityEngine.Random.Range((int)minimumUnitsBetweenExtraLifeItemSpawns, (int)maximumUnitsBetweenExtraLifeItemSpawns));
         }
 
-        for (int i = 0; i < interactablesToBeSpawned.Count; i++)
+        if(interactablesToBeSpawned.Count > 0)
         {
-            bool freeSpotFound = false;
-            int x=0;
-            int y=0;
-            while (!freeSpotFound)
+            for (int i = 0; i < interactablesToBeSpawned.Count; i++)
             {
-                x = UnityEngine.Random.Range(0, spawnSpots.GetLength(0));
-                y = UnityEngine.Random.Range(0, spawnSpots.GetLength(1));
-                if(spawnSpots[x,y] == SpawnSpot.FREE)
+                bool freeSpotFound = false;
+                int x = 0;
+                int y = 0;
+                while (!freeSpotFound)
                 {
-                    freeSpotFound = true;
+                    x = UnityEngine.Random.Range(0, spawnSpots.GetLength(0));
+                    y = UnityEngine.Random.Range(0, spawnSpots.GetLength(1));
+                    if (spawnSpots[x, y] == SpawnSpot.FREE)
+                    {
+                        freeSpotFound = true;
+                    }
                 }
+                spawnSpots[x, y] = SpawnSpot.OCCUPIED;
+                interactablesToBeSpawned[i].gameObject.SetActive(true);
+                Vector2 laneXY = World.LanesXYs[x, y];
+                float positionZ = player.transform.position.z + spawnDistanceFromPlayer;
+                interactablesToBeSpawned[i].transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
             }
-            spawnSpots[x, y] = SpawnSpot.OCCUPIED;
-            interactablesToBeSpawned[i].gameObject.SetActive(true);
-            Vector2 laneXY = World.LanesXYs[x, y];
-            float positionZ = player.transform.position.z + spawnDistanceFromPlayer;
-            interactablesToBeSpawned[i].transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
 
-        }
+            ClearSpawnSpots();
+            interactablesToBeSpawned.Clear();
+        }      
     }
 
     private Interactable[] LendRandomClothingItems(int amount)
@@ -174,9 +208,11 @@ public class InteractablesManager : Singleton<InteractablesManager>
             int index = UnityEngine.Random.Range(0, clothingItemsPool.Count);
             Interactable interactable = clothingItemsPool[index];
             clothingItemsPool.RemoveAt(index);
+
             lentItems[i] = interactable;
         }
 
+        lentInteractables.AddRange(lentItems);
         return lentItems;
     }
 
@@ -191,10 +227,10 @@ public class InteractablesManager : Singleton<InteractablesManager>
         Interactable lentItem = extraLifeItemsPool[index];
         extraLifeItemsPool.RemoveAt(index);
 
+        lentInteractables.Add(lentItem);
         return lentItem;
     }
-
-    
+  
     public static void RecycleInteractable(Interactable interactable)
     {
         interactable.gameObject.SetActive(false);
@@ -207,6 +243,27 @@ public class InteractablesManager : Singleton<InteractablesManager>
         {
             extraLifeItemsPool.Add(interactable as ExtraLifeItem);
         }
+
+        lentInteractables.Remove(interactable);
+    }
+
+    public static void RecycleAllInteractables()
+    {
+        foreach (Interactable interactable in lentInteractables)
+        {
+            interactable.gameObject.SetActive(false);
+
+            if (interactable is ClothingItem)
+            {
+                clothingItemsPool.Add(interactable as ClothingItem);
+            }
+            else if (interactable is ExtraLifeItem)
+            {
+                extraLifeItemsPool.Add(interactable as ExtraLifeItem);
+            }
+        }
+
+        lentInteractables.Clear();
 
     }
 }

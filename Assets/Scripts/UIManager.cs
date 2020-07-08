@@ -14,6 +14,8 @@ public class UIManager : Singleton<UIManager>
 
     [SerializeField] private Sprite[] currentClothingTypeRequiredSprites;
     [SerializeField] private Sprite[] nextClothingTypeRequiredSprites;
+    [SerializeField] private  GameObject gameOverPopUp;
+    [SerializeField] private GameObject pauseMenu;
 
 
     private void OnEnable()
@@ -23,6 +25,10 @@ public class UIManager : Singleton<UIManager>
         Player.OnWashedItemsChanged += UpdateWashedItemsText;
         GameManager.OnClothingTypeRequiredChanged += UpdateClothingTypeRequired;
         GameManager.OnClothingTypeChangeWarning += UpdateClothingTypeChangeWarningText;
+        GameManager.OnGameOver += ShowGameOverPopUp;
+        GameManager.OnRestart += Initialise;
+        GameManager.OnPause += ShowPauseMenu;
+        GameManager.OnUnPause += HidePauseMenu;
 
     }
 
@@ -33,7 +39,22 @@ public class UIManager : Singleton<UIManager>
         Player.OnWashedItemsChanged -= UpdateWashedItemsText;
         GameManager.OnClothingTypeRequiredChanged -= UpdateClothingTypeRequired;
         GameManager.OnClothingTypeChangeWarning -= UpdateClothingTypeChangeWarningText;
+        GameManager.OnGameOver -= ShowGameOverPopUp;
+        GameManager.OnRestart -= Initialise;
+        GameManager.OnPause -= ShowPauseMenu;
+        GameManager.OnUnPause -= HidePauseMenu;
 
+
+    }
+
+    private void Start()
+    {
+        Initialise();
+    }
+
+    private void Initialise()
+    {
+        gameOverPopUp.SetActive(false);
     }
 
     private void UpdateMileageText(System.UInt32 mileage)
@@ -66,5 +87,20 @@ public class UIManager : Singleton<UIManager>
     private void UpdateClothingTypeChangeWarningText(float time)
     {
         clothingTypeChangeWarningText.text = time.ToString("f1");
+    }
+
+    private void ShowGameOverPopUp()
+    {
+        gameOverPopUp.SetActive(true);
+    }
+
+    private void ShowPauseMenu()
+    {
+        pauseMenu.SetActive(true);
+    }
+
+    private void HidePauseMenu()
+    {
+        pauseMenu.SetActive(false);
     }
 }
