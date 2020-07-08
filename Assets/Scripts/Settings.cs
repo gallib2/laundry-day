@@ -5,21 +5,36 @@ using UnityEngine;
 public class Settings : Singleton<Settings>
 {
 	private const int CAMERA_OPTIONS_NUMBER = 3;
+
+	private CameraOption chosenCameraOption;
 	public int PlayerMinimumSpeed { get; set; }
 	public bool SetMinSpeed { get; set; }
 	public int PlayerMaximumSpeed { get; set; }
 	public bool SetMaxSpeed { get; set; }
+	public bool IsSetCameraOptions { get; set; }
+	public CameraOption[] CameraOptions { get; private set; }
+	public float PlayeJumpForce { get; set; }
+	public bool IsSetJumpForce { get; set; }
 
-	private CameraOption chosenCameraOption;
-	public bool SetCameraOptions { get; set; }
+
+	public CameraOption ChosenCameraOption
+	{
+		get { return chosenCameraOption; }
+		set { chosenCameraOption = value; }
+	}
+
+	public int CameraOptionsNumber
+	{
+		get { return CAMERA_OPTIONS_NUMBER; }
+	}
 
 	protected Settings()
 	{
 		CameraOptions = new CameraOption[CAMERA_OPTIONS_NUMBER];
-		setCameraOptions();
+		SetCameraOptions();
 	}
 
-	private void setCameraOptions()
+	private void SetCameraOptions()
 	{
 		CameraOptions = new CameraOption[CAMERA_OPTIONS_NUMBER];
 		CameraOptions[0].Name = "Option x";
@@ -34,19 +49,6 @@ public class Settings : Singleton<Settings>
 		CameraOptions[2].Position = new Vector3(0, 3.4f, -10.91f);
 		CameraOptions[2].Rotation = Quaternion.Euler(3.52f, 0f, 0f);
 	}
-
-	public CameraOption ChosenCameraOption
-	{
-		get { return chosenCameraOption; }
-		set { chosenCameraOption = value; }
-	}
-
-	public int CameraOptionsNumber
-	{
-		get { return CAMERA_OPTIONS_NUMBER; }
-	}
-
-    public CameraOption[] CameraOptions { get; private set; }
 }
 
 [System.Serializable]

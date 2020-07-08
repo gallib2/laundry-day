@@ -91,6 +91,7 @@ public class Player : Singleton<Player>
         controller.enabled = true;
         minimumSpeed = Settings.Instance.SetMinSpeed ? Settings.Instance.PlayerMinimumSpeed : minimumSpeed;
         maximumSpeed = Settings.Instance.SetMaxSpeed ? Settings.Instance.PlayerMaximumSpeed : maximumSpeed;
+        jumpForce = Settings.Instance.IsSetJumpForce ? Settings.Instance.PlayeJumpForce : jumpForce;
         timePassedSinceStart = 0;
         maximumSpeedReached = false;
         Lives = LIVES_AT_START;
