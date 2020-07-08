@@ -31,7 +31,7 @@ public class GameManager : Singleton<GameManager>
                 newColthingTypeIsDifferentToOldOne = true;
             }
         }
-        
+
         Invoke("ChangeClothingTypeRequired",
             Random.Range(minimumSecondsBetweenClothingTypeChanges, maximumSecondsBetweenClothingTypeChanges));
 

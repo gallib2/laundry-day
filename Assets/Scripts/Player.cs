@@ -39,6 +39,11 @@ public class Player : Singleton<Player>
     private UInt32 washedItems;
     #endregion
 
+    private void Awake()
+    {
+        Debug.Log("minimumSpeed: awakew " + minimumSpeed);
+    }
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -47,6 +52,9 @@ public class Player : Singleton<Player>
 
     private void Initialise()
     {
+        Debug.Log("Settings.Instance.SetMinSpeed: " + Settings.Instance.SetMinSpeed);
+        minimumSpeed = Settings.Instance.SetMinSpeed ? Settings.Instance.PlayerMinimumSpeed : minimumSpeed;
+        maximumSpeed = Settings.Instance.SetMaxSpeed ? Settings.Instance.PlayerMaximumSpeed : maximumSpeed;
         timePassedSinceStart = 0;
         maximumSpeedReached = false;
         lives = LIVES_AT_START;
