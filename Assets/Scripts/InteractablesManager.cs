@@ -3,12 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class InteractablesManager : Singleton<InteractablesManager>
 {
     [SerializeField] private ClothingItem[] clothingItemsPreFabs;
     [SerializeField] private ExtraLifeItem extraLifeItemPreFab;
     private static List< ClothingItem> clothingItemsPool;
     private static List<ExtraLifeItem> extraLifeItemsPool;
+    private static List<Interactable> lentInteractables;
+
+    List<Interactable> interactablesToBeSpawned;
 
     [SerializeField] Player player;
     [SerializeField] private float spawnDistanceFromPlayer;
@@ -19,19 +24,73 @@ public class InteractablesManager : Singleton<InteractablesManager>
     [SerializeField] private UInt32 maximumUnitsBetweenExtraLifeItemSpawns;
     private UInt32 nextClothingItemSpawn;
     private UInt32 nextExtraLifeItemSpawn;
-    [SerializeField] private float lowSpawnY;
-    [SerializeField] private float highSpawnY;
+
+    [SerializeField] private ClothingItemsGenerationPoint[] clothingItemsGenerationPoints;
+    [Serializable]
+    private struct ClothingItemsGenerationPoint
+    {
+        public UInt32 mileage;
+        public int maxClothingItemsGenerated;
+    }
+
+    private SpawnSpot[,] spawnSpots;
+    private enum SpawnSpot : byte
+    {
+        FREE = 0, OCCUPIED = 1,
+    }
+
+    private void OnEnable()
+    {
+        GameManager.OnRestart += Initialise;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRestart -= Initialise;
+    }
 
     private void Start()
     {
         Initialise();
-
     }
 
     private void Initialise()
     {
+        Debug.Log("InteractablesManager Initialise");
         InitialisePools();
-       // SpawnClothingItem();
+        InitialiseSpawnSpots();
+        InitialiseInteractablesToBeSpawned();
+        nextClothingItemSpawn = 0;
+        nextExtraLifeItemSpawn = 0;
+    }
+
+    private void InitialiseInteractablesToBeSpawned()
+    {
+        if (interactablesToBeSpawned == null)
+        {
+            interactablesToBeSpawned = new List<Interactable>();
+        }
+        interactablesToBeSpawned.Clear();
+    }
+
+    private void InitialiseSpawnSpots()
+    {
+        if(spawnSpots == null)
+        {
+            spawnSpots = new SpawnSpot[World.NUMBER_OF_LANES, World.NUMBER_OF_VERTICAL_DIVISIONS_PER_LANE];
+        }
+        ClearSpawnSpots();
+    }
+
+    private void ClearSpawnSpots()
+    {
+        for (int x = 0; x < spawnSpots.GetLength(0); x++)
+        {
+            for (int y = 0; y < spawnSpots.GetLength(1); y++)
+            {
+                spawnSpots[x, y] = SpawnSpot.FREE;
+            }
+        }
     }
 
     private void InitialisePools()
@@ -61,12 +120,20 @@ public class InteractablesManager : Singleton<InteractablesManager>
             }
         }
 
+        if (lentInteractables == null)
+        {
+            lentInteractables = new List<Interactable>();
+        }
+
+        RecycleAllInteractables();
     }
 
     private void Update()
     {
-        ManageSpawning();
-
+        if (!GameManager.GameIsOver && !GameManager.GameIsPaused)
+        {
+            ManageSpawning();
+        }
     }
 
     private void ManageSpawning()
@@ -74,55 +141,96 @@ public class InteractablesManager : Singleton<InteractablesManager>
         UInt32 playerMileage = Player.Instance.MileageInUnits;
         if (playerMileage >= nextClothingItemSpawn)
         {
-            SpawnClothingItem(playerMileage);
+            int maxClothingItems = 0;
+            for (int i = 0; i < clothingItemsGenerationPoints.Length; i++)
+            {
+                if(playerMileage < clothingItemsGenerationPoints[i].mileage)
+                {
+                    break;
+                }
+                else
+                {
+                    maxClothingItems = clothingItemsGenerationPoints[i].maxClothingItemsGenerated;
+                }
+            }
+            int numberOfClothingItemsToSpawn = 
+                UnityEngine.Random.Range(1, maxClothingItems + 1/*Added 1 cause Random.Range isn't inclusive*/);
+            interactablesToBeSpawned.AddRange
+                 (LendRandomClothingItems(numberOfClothingItemsToSpawn));
+            nextClothingItemSpawn = (UInt32)(playerMileage +
+                   UnityEngine.Random.Range((int)minimumUnitsBetweenClothingItemSpawns, (int)maximumUnitsBetweenClothingItemSpawns));
         }
         if (playerMileage >= nextExtraLifeItemSpawn)
         {
-            SpawnExtraLifeItem(playerMileage);
+            interactablesToBeSpawned.Add(LendExtraLifeItem());
+            nextExtraLifeItemSpawn = (UInt32)(playerMileage +
+                  UnityEngine.Random.Range((int)minimumUnitsBetweenExtraLifeItemSpawns, (int)maximumUnitsBetweenExtraLifeItemSpawns));
         }
+
+        if(interactablesToBeSpawned.Count > 0)
+        {
+            for (int i = 0; i < interactablesToBeSpawned.Count; i++)
+            {
+                bool freeSpotFound = false;
+                int x = 0;
+                int y = 0;
+                while (!freeSpotFound)
+                {
+                    x = UnityEngine.Random.Range(0, spawnSpots.GetLength(0));
+                    y = UnityEngine.Random.Range(0, spawnSpots.GetLength(1));
+                    if (spawnSpots[x, y] == SpawnSpot.FREE)
+                    {
+                        freeSpotFound = true;
+                    }
+                }
+                spawnSpots[x, y] = SpawnSpot.OCCUPIED;
+                interactablesToBeSpawned[i].gameObject.SetActive(true);
+                Vector2 laneXY = World.LanesXYs[x, y];
+                float positionZ = player.transform.position.z + spawnDistanceFromPlayer;
+                interactablesToBeSpawned[i].transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
+            }
+
+            ClearSpawnSpots();
+            interactablesToBeSpawned.Clear();
+        }      
     }
 
-    private void SpawnClothingItem(UInt32 playerMileage)
+    private Interactable[] LendRandomClothingItems(int amount)
     {
-        if (clothingItemsPool ==null || clothingItemsPool.Count <= 0 )
+        if (clothingItemsPool == null || clothingItemsPool.Count < amount)
         {
             Debug.LogError("Pool's closed!");
-            return;
+            return null;
         }
-        int index = UnityEngine.Random.Range(0, clothingItemsPool.Count);
-        ClothingItem newClothingItem = clothingItemsPool[index];
-        clothingItemsPool.RemoveAt(index);
-        newClothingItem.gameObject.SetActive(true);
-        float x = World.LanesXs[UnityEngine.Random.Range(0, World.LanesXs.Length)];//TODO: build lane slot system
-        float y = UnityEngine.Random.Range(0, 4) == 3 ? highSpawnY : lowSpawnY; //HARDCODED
-        float z = player.transform.position.z + spawnDistanceFromPlayer;
-        newClothingItem.transform.position = new Vector3(x, y, z);
+        Interactable[] lentItems = new Interactable[amount];
+        for (int i = 0; i < lentItems.Length; i++)
+        {
+            int index = UnityEngine.Random.Range(0, clothingItemsPool.Count);
+            Interactable interactable = clothingItemsPool[index];
+            clothingItemsPool.RemoveAt(index);
 
-        nextClothingItemSpawn = (UInt32)(playerMileage +
-             UnityEngine.Random.Range((int)minimumUnitsBetweenClothingItemSpawns, (int)maximumUnitsBetweenClothingItemSpawns));
+            lentItems[i] = interactable;
+        }
+
+        lentInteractables.AddRange(lentItems);
+        return lentItems;
     }
 
-    private void SpawnExtraLifeItem(UInt32 playerMileage)
+    private Interactable LendExtraLifeItem()
     {
-        //TODO: merege this function with SpawnClothingItem
         if (extraLifeItemsPool == null || extraLifeItemsPool.Count <= 0)
         {
             Debug.LogError("Pool's closed!");
-            return;
+            return null;
         }
         int index = 0;
-        ExtraLifeItem newExtraLifeItem = extraLifeItemsPool[index];
+        Interactable lentItem = extraLifeItemsPool[index];
         extraLifeItemsPool.RemoveAt(index);
-        newExtraLifeItem.gameObject.SetActive(true);
-        float x = World.LanesXs[UnityEngine.Random.Range(0, World.LanesXs.Length)];
-        float y = UnityEngine.Random.Range(0, 4) == 3 ? highSpawnY : lowSpawnY; //HARDCODED
-        float z = player.transform.position.z + spawnDistanceFromPlayer;
-        newExtraLifeItem.transform.position = new Vector3(x, y, z);
 
-        nextExtraLifeItemSpawn = (UInt32)(playerMileage +
-             UnityEngine.Random.Range((int)minimumUnitsBetweenExtraLifeItemSpawns, (int)maximumUnitsBetweenExtraLifeItemSpawns));
+        lentInteractables.Add(lentItem);
+        return lentItem;
     }
-
+  
     public static void RecycleInteractable(Interactable interactable)
     {
         interactable.gameObject.SetActive(false);
@@ -136,6 +244,26 @@ public class InteractablesManager : Singleton<InteractablesManager>
             extraLifeItemsPool.Add(interactable as ExtraLifeItem);
         }
 
+        lentInteractables.Remove(interactable);
+    }
+
+    public static void RecycleAllInteractables()
+    {
+        foreach (Interactable interactable in lentInteractables)
+        {
+            interactable.gameObject.SetActive(false);
+
+            if (interactable is ClothingItem)
+            {
+                clothingItemsPool.Add(interactable as ClothingItem);
+            }
+            else if (interactable is ExtraLifeItem)
+            {
+                extraLifeItemsPool.Add(interactable as ExtraLifeItem);
+            }
+        }
+
+        lentInteractables.Clear();
 
     }
 }

@@ -1,0 +1,40 @@
+﻿private void SpawnClothingItem(UInt32 playerMileage)
+    {
+        if (clothingItemsPool ==null || clothingItemsPool.Count <= 0 )
+        {
+            Debug.LogError("Pool's closed!");
+            return;
+        }
+        int index = UnityEngine.Random.Range(0, clothingItemsPool.Count);
+        ClothingItem newClothingItem = clothingItemsPool[index];
+        clothingItemsPool.RemoveAt(index);
+        newClothingItem.gameObject.SetActive(true);
+        float x = World.LanesXs[UnityEngine.Random.Range(0, World.LanesXs.Length)];//TODO: build lane slot system
+        float y = UnityEngine.Random.Range(0, 4) == 3 ? highSpawnY : lowSpawnY; //HARDCODED
+        float z = player.transform.position.z + spawnDistanceFromPlayer;
+        newClothingItem.transform.position = new Vector3(x, y, z);
+
+        nextClothingItemSpawn = (UInt32)(playerMileage +
+             UnityEngine.Random.Range((int)minimumUnitsBetweenClothingItemSpawns, (int)maximumUnitsBetweenClothingItemSpawns));
+    }
+
+    private void SpawnExtraLifeItem(UInt32 playerMileage)
+    {
+        //TODO: merege this function with SpawnClothingItem
+        if (extraLifeItemsPool == null || extraLifeItemsPool.Count <= 0)
+        {
+            Debug.LogError("Pool's closed!");
+            return;
+        }
+        int index = 0;
+        ExtraLifeItem newExtraLifeItem = extraLifeItemsPool[index];
+        extraLifeItemsPool.RemoveAt(index);
+        newExtraLifeItem.gameObject.SetActive(true);
+        float x = World.LanesXs[UnityEngine.Random.Range(0, World.LanesXs.Length)];
+        float y = UnityEngine.Random.Range(0, 4) == 3 ? highSpawnY : lowSpawnY; //HARDCODED
+        float z = player.transform.position.z + spawnDistanceFromPlayer;
+        newExtraLifeItem.transform.position = new Vector3(x, y, z);
+
+        nextExtraLifeItemSpawn = (UInt32)(playerMileage +
+             UnityEngine.Random.Range((int)minimumUnitsBetweenExtraLifeItemSpawns, (int)maximumUnitsBetweenExtraLifeItemSpawns));
+    }

@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class World : Singleton<World>
 {
-    public const float LANE_DISTANCE = 5.0f;
-    private static float[] lanesXs;
-    public static float[] LanesXs
+    public const float LANE_HORIZONTAL_SPACING = 5.0f;
+    public const float LANE_VERTICAL_SPACING = 3.5f;
+
+    private static Vector2[,] lanesXYs;
+    public static Vector2[,] LanesXYs
     {
-        get { return lanesXs; }
+        get { return lanesXYs; }
     }
-    private const int numberOfLanes = 3;
+    public const int NUMBER_OF_LANES = 3;
+    public const int NUMBER_OF_VERTICAL_DIVISIONS_PER_LANE = 2;
 
     private void Awake()
     {
@@ -19,14 +22,17 @@ public class World : Singleton<World>
 
     private static void InitialiseLanes()
     {
-        lanesXs = new float[numberOfLanes];
-        int middleLaneIndex = numberOfLanes / 2;
-        lanesXs[middleLaneIndex] = 0f;
-        float normaliser = middleLaneIndex * LANE_DISTANCE;
-        for (int i = 0; i < lanesXs.Length; i++)
+        lanesXYs = new Vector2[NUMBER_OF_LANES, NUMBER_OF_VERTICAL_DIVISIONS_PER_LANE];
+        int middleLaneIndex = NUMBER_OF_LANES / 2;
+        float xNormaliser = middleLaneIndex * LANE_HORIZONTAL_SPACING;
+        for (int x = 0; x < NUMBER_OF_LANES; x++)
         {
-            lanesXs[i] = (LANE_DISTANCE * i) - normaliser;
-            Debug.Log("LaneZ = " + lanesXs[i]);
+            for (int y = 0; y < NUMBER_OF_VERTICAL_DIVISIONS_PER_LANE; y++)
+            {
+                lanesXYs[x,y] = new Vector2
+                    (((LANE_HORIZONTAL_SPACING * x) - xNormaliser), y * LANE_VERTICAL_SPACING);
+                Debug.Log("LaneXY = " + lanesXYs[x, y].ToString());
+            }
         }
     }
 
