@@ -23,20 +23,46 @@ public class Player : Singleton<Player>
 
     private int desiredLane = 1;
 
-    private UInt32 mileageInUnits;
+    private UInt32 _mileageInUnits;
     public UInt32 MileageInUnits
     {
-        get { return mileageInUnits; }
+        get { return _mileageInUnits; }
+        private set
+        {
+            _mileageInUnits = value;
+            OnMileageChanged(_mileageInUnits);
+        }
     }
+    public static event Action<UInt32> OnMileageChanged;
     private float zAtStart;
 
     #endregion
 
     #region Washing Related::
     [Header("Washing Related:")]
-    private int lives;
+    private int _lives;
+    private int Lives
+    {
+        get { return _lives; }
+        set
+        {
+            _lives = value;
+            OnLivesChanged(_lives);
+        }
+    }
     [SerializeField] private int LIVES_AT_START = 3;
-    private UInt32 washedItems;
+    public static event Action<int> OnLivesChanged;   
+    private UInt32 _washedItems;
+    public UInt32 WashedItems
+    {
+        get { return _washedItems; }
+        private set
+        {
+            _washedItems = value;
+            OnWashedItemsChanged(_washedItems);
+        }
+    }
+    public static event Action<UInt32> OnWashedItemsChanged;
     #endregion
 
     void Start()
@@ -49,12 +75,15 @@ public class Player : Singleton<Player>
     {
         timePassedSinceStart = 0;
         maximumSpeedReached = false;
-        lives = LIVES_AT_START;
-        washedItems = 0;
-        mileageInUnits = 0;
+        Lives = LIVES_AT_START;
+
+        WashedItems = 0;
+
+        MileageInUnits = 0;
+
         zAtStart = transform.position.z;
         InformationText.Instance.UpdateText
-            (null, lives.ToString(), washedItems.ToString(), mileageInUnits.ToString());
+            (null, Lives.ToString(), WashedItems.ToString(), MileageInUnits.ToString());
     }
 
     void Update()
@@ -88,10 +117,10 @@ public class Player : Singleton<Player>
     private void CalculateMileage()
     {
         UInt32 newMileage = (UInt32)(transform.position.z - zAtStart);
-        if(newMileage != mileageInUnits)
+        if(newMileage != MileageInUnits)
         {
-            mileageInUnits = newMileage;
-            InformationText.Instance.UpdateText(null, null, null,mileageInUnits.ToString());
+            MileageInUnits = newMileage;
+           // InformationText.Instance.UpdateText(null, null, null,mileageInUnits.ToString());
         }
     }
 
@@ -120,11 +149,11 @@ public class Player : Singleton<Player>
         Vector3 targetPosition = transform.position.z * Vector3.forward;
         if (desiredLane == (int)Lane.Left)
         {
-            targetPosition += Vector3.left * World.LANE_DISTANCE;
+            targetPosition += Vector3.left * World.LANE_HORIZONTAL_SPACING;
         }
         else if (desiredLane == (int)Lane.Right)
         {
-            targetPosition += Vector3.right * World.LANE_DISTANCE;
+            targetPosition += Vector3.right * World.LANE_HORIZONTAL_SPACING;
         }
 
         xVelocity = (targetPosition - transform.position).normalized.x * currentSpeed;
@@ -167,7 +196,7 @@ public class Player : Singleton<Player>
             {
                 ClothingItem clothingItem = interactable as ClothingItem;
                 ClothingType clothingType = clothingItem.ClothingType;
-                if(clothingType == GameManager.ClothingTypeRequired)
+                if(clothingType == GameManager.CurrentClothingTypeRequired)
                 {
                     WasheItem();
                 }
@@ -187,25 +216,25 @@ public class Player : Singleton<Player>
 
     private void WasheItem()
     {
-        washedItems += 1;
-        InformationText.Instance.UpdateText(null, null, washedItems.ToString());
+        WashedItems += 1;
+        InformationText.Instance.UpdateText(null, null, WashedItems.ToString());
     }
 
     private void LoseALife()
     {
-        lives -= 1;
-        if (lives <= 0)
+        Lives -= 1;
+        if (Lives <= 0)
         {
             Lose();
             return;
         }
-        InformationText.Instance.UpdateText(null, lives.ToString());
+        InformationText.Instance.UpdateText(null, Lives.ToString());
     }
 
     private void GainALife()
     {
-        lives += 1;
-        InformationText.Instance.UpdateText(null, lives.ToString());
+        Lives += 1;
+        InformationText.Instance.UpdateText(null, Lives.ToString());
     }
 
     private void Lose()
