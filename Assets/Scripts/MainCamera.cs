@@ -6,7 +6,7 @@ public class MainCamera : MonoBehaviour
 {
     void Start()
     {
-        if (Settings.Instance.SetCameraOptions)
+        if (Settings.Instance.IsSetCameraOptions)
         {
             transform.localPosition = Settings.Instance.ChosenCameraOption.Position;
             transform.localRotation = Settings.Instance.ChosenCameraOption.Rotation;
