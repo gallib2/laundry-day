@@ -5,17 +5,45 @@ using UnityEngine;
 public class PlatformManager : Singleton<PlatformManager>
 {
     [SerializeField] private GameObject[] platformPrefabs;
+    private List<GameObject> platforms;
+
     private float zPositionOffset = 0.0f;
 
     private const float Z_PLATFORM_SIZE = 100.0f;
 
-    void Start()
+    private void OnEnable()
     {
-        for (int i = 0; i < platformPrefabs.Length; i++)
+        GameManager.OnRestart += Initialise;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRestart -= Initialise;
+    }
+
+    private void Start()
+    {
+        Initialise();
+    }
+
+    private void Initialise()
+    {
+        zPositionOffset = 0f;
+
+        if (platforms == null)
         {
-            Instantiate(platformPrefabs[i], new Vector3(0, 0, i * Z_PLATFORM_SIZE), Quaternion.identity);
-            zPositionOffset += Z_PLATFORM_SIZE;
+            platforms = new List<GameObject>();
+            for (int i = 0; i < platformPrefabs.Length; i++)
+            {
+                platforms.Add(Instantiate(platformPrefabs[i]));
+            }
         }
+
+        for (int i = 0; i < platforms.Count; i++)
+        {
+            platforms[i].transform.position = new Vector3(0, 0, i * Z_PLATFORM_SIZE);
+        }
+        zPositionOffset += Z_PLATFORM_SIZE * platforms.Count;
     }
 
     public void RecyclePlatform(GameObject platform)

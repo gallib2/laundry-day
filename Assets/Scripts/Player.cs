@@ -5,6 +5,8 @@ using System;
 
 public class Player : Singleton<Player>
 {
+
+    [SerializeField] private Vector3 startingPosition;
     #region Movement:
     [Header("Movement:")]
     private CharacterController controller;
@@ -34,7 +36,6 @@ public class Player : Singleton<Player>
         }
     }
     public static event Action<UInt32> OnMileageChanged;
-    private float zAtStart;
 
     #endregion
 
@@ -50,6 +51,7 @@ public class Player : Singleton<Player>
             OnLivesChanged(_lives);
         }
     }
+
     [SerializeField] private int LIVES_AT_START = 3;
     public static event Action<int> OnLivesChanged;   
     private UInt32 _washedItems;
@@ -65,6 +67,16 @@ public class Player : Singleton<Player>
     public static event Action<UInt32> OnWashedItemsChanged;
     #endregion
 
+    private void OnEnable()
+    {
+        GameManager.OnRestart += Initialise;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRestart -= Initialise;
+    }
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -73,6 +85,11 @@ public class Player : Singleton<Player>
 
     private void Initialise()
     {
+        Debug.Log("Player Initialise()");
+        controller.enabled = false;
+        transform.position = startingPosition;
+        controller.enabled = true;
+
         timePassedSinceStart = 0;
         maximumSpeedReached = false;
         Lives = LIVES_AT_START;
@@ -81,20 +98,22 @@ public class Player : Singleton<Player>
 
         MileageInUnits = 0;
 
-        zAtStart = transform.position.z;
-        InformationText.Instance.UpdateText
-            (null, Lives.ToString(), WashedItems.ToString(), MileageInUnits.ToString());
+        desiredLane = 1;
     }
 
     void Update()
     {
-        timePassedSinceStart += Time.deltaTime;
-        if(!maximumSpeedReached)
+        if (!GameManager.GameIsOver && !GameManager.GameIsPaused)
         {
-            Accelerate();
+            timePassedSinceStart += Time.deltaTime;
+            if (!maximumSpeedReached)
+            {
+                Accelerate();
+            }
+            Move();
+            CalculateMileage();
         }
-        Move();
-        CalculateMileage();
+
     }
 
     private void Accelerate()
@@ -116,7 +135,7 @@ public class Player : Singleton<Player>
 
     private void CalculateMileage()
     {
-        UInt32 newMileage = (UInt32)(transform.position.z - zAtStart);
+        UInt32 newMileage = (UInt32)(transform.position.z - startingPosition.z);
         if(newMileage != MileageInUnits)
         {
             MileageInUnits = newMileage;
@@ -145,7 +164,6 @@ public class Player : Singleton<Player>
             }
         }
         
-
         Vector3 targetPosition = transform.position.z * Vector3.forward;
         if (desiredLane == (int)Lane.Left)
         {
@@ -223,24 +241,18 @@ public class Player : Singleton<Player>
     private void LoseALife()
     {
         Lives -= 1;
-        if (Lives <= 0)
+        /*if (Lives <= 0)
         {
             Lose();
             return;
-        }
-        InformationText.Instance.UpdateText(null, Lives.ToString());
+        }*/
     }
 
     private void GainALife()
     {
         Lives += 1;
-        InformationText.Instance.UpdateText(null, Lives.ToString());
     }
 
-    private void Lose()
-    {
-        Destroy(gameObject);
-    }
 }
 
 public enum Lane

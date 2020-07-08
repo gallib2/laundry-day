@@ -5,6 +5,20 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
+    public static event Action OnGameOver;
+    public static event Action OnRestart;
+    public static event Action OnPause;
+    public static event Action OnUnPause;
+
+    public static bool GameIsOver
+    {
+        get; private set;
+    }
+    public static bool GameIsPaused
+    {
+        get; private set;
+    }
+
     private static ClothingType currentClothingTypeRequired;
     public static ClothingType CurrentClothingTypeRequired
     {
@@ -20,15 +34,45 @@ public class GameManager : Singleton<GameManager>
 
     [SerializeField] private int warningOfClothingTypeChangeDuration;
 
+    private void OnEnable()
+    {
+        OnRestart += Initialise;
+        Player.OnLivesChanged += CheckPlayerLives;
+    }
+
+    private void OnDisable()
+    {
+        OnRestart -= Initialise;
+        Player.OnLivesChanged -= CheckPlayerLives;
+    }
 
     private void Start()
     {
         Initialise();
     }
 
+    public void Restart()
+    {
+        OnRestart();
+    }
+
+    public void PauseGame()
+    {
+        GameIsPaused = true;
+        OnPause();
+    }
+
+    public void UnPauseGame()
+    {
+        GameIsPaused = false;
+        OnUnPause();
+    }
+
     private void Initialise()
     {
+        GameIsOver = false;
         InitialiseClothingTypeRequired();
+        UnPauseGame();
     }
 
     private void DetermineNextClothingTypeChangeSchedule()
@@ -79,18 +123,36 @@ public class GameManager : Singleton<GameManager>
         OnClothingTypeRequiredChanged(currentClothingTypeRequired, nextClothingTypeRequired);
     }
 
+    private void CheckPlayerLives(int lives)
+    {
+        if (lives <= 0)
+        {
+            GameOver();
+        }
+    }
+
+    private void GameOver()
+    {
+        GameIsOver = true;
+        OnGameOver();
+    }
+
     private void Update()
     {
-        float time = Time.time;
-        float timeDifference = nextClothingTypeChangeScheduled - time;
-        if (timeDifference < warningOfClothingTypeChangeDuration)
+        if (!GameIsOver && !GameIsPaused)
         {
-            OnClothingTypeChangeWarning(timeDifference);
+            float time = Time.time;
+            float timeDifference = nextClothingTypeChangeScheduled - time;
+            if (timeDifference < warningOfClothingTypeChangeDuration)
+            {
+                OnClothingTypeChangeWarning(timeDifference);
+            }
+            if (time >= nextClothingTypeChangeScheduled)
+            {
+                ChangeClothingTypeRequired();
+                DetermineNextClothingTypeChangeSchedule();
+            }
         }
-        if (time >= nextClothingTypeChangeScheduled)
-        {
-            ChangeClothingTypeRequired();
-            DetermineNextClothingTypeChangeSchedule();
-        }
+
     }
 }
