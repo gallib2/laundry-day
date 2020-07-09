@@ -3,15 +3,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
 public class InteractablesManager : Singleton<InteractablesManager>
 {
-    [SerializeField] private ClothingItem[] clothingItemsPreFabs;
+    [Serializable]
+    private struct Chance
+    {
+        public int minimum;
+        public int demand;
+        public int maximum;
+        public bool IsPositive()
+        {
+            return (UnityEngine.Random.Range(minimum, maximum + 1) >= demand);
+        }
+    }
+    [SerializeField] private Chance lowestFloorEnforceChance;
+
+    [SerializeField] private ClothingItem clothingItemsPreFab;
     [SerializeField] private ExtraLifeItem extraLifeItemPreFab;
     private static List< ClothingItem> clothingItemsPool;
     private static List<ExtraLifeItem> extraLifeItemsPool;
     private static List<Interactable> lentInteractables;
+    private const int INITIAL_CLOTHING_ITEMS_POOL_SIZE = 32;
+    private const int INITIAL_EXTRA_LIFE_ITEMS_POOL_SIZE = 4;
+    private const int CLOTHING_ITEMS_POOL_EMERGENCY_BOOST = 16;
+    private const int EXTRA_LIFE_ITEMS_POOL_EMERGENCY_BOOST = 2;
 
     List<Interactable> interactablesToBeSpawned;
 
@@ -38,6 +53,29 @@ public class InteractablesManager : Singleton<InteractablesManager>
     {
         FREE = 0, OCCUPIED = 1,
     }
+
+    [Serializable]
+    private class ClothingTypeProperties
+    {
+        [SerializeField] private ClothingType clothingType; 
+        [SerializeField] private Mesh[] meshes;
+        [SerializeField] private Material[] materials;
+        public ClothingType GetClothingType()
+        {
+            return clothingType;
+        }
+
+        public Mesh GetRandomMesh()
+        {
+            return meshes[UnityEngine.Random.Range(0, meshes.Length)];
+        }
+        public Material GetRandomMaterial()
+        {
+            return materials[UnityEngine.Random.Range(0, materials.Length)];
+        }
+    }
+
+    [SerializeField] private ClothingTypeProperties[] clothingTypeProperties;
 
     private void OnEnable()
     {
@@ -98,26 +136,13 @@ public class InteractablesManager : Singleton<InteractablesManager>
         if(clothingItemsPool == null)
         {
             clothingItemsPool = new List<ClothingItem>();
-            for (int i = 0; i < clothingItemsPreFabs.Length; i++)
-            {
-                for (int j = 0; j < 20; j++)
-                {
-                    ClothingItem newClothingItem = Instantiate(clothingItemsPreFabs[i]);
-                    newClothingItem.gameObject.SetActive(false);
-                    clothingItemsPool.Add(newClothingItem);
-                }
-            }
+            PopulateClothingItemsPool(INITIAL_CLOTHING_ITEMS_POOL_SIZE);
         }
 
         if (extraLifeItemsPool == null)
         {
             extraLifeItemsPool = new List<ExtraLifeItem>();
-            for (int j = 0; j < 5; j++)
-            {
-                ExtraLifeItem newExtraLifeItem = Instantiate(extraLifeItemPreFab);
-                newExtraLifeItem.gameObject.SetActive(false);
-                extraLifeItemsPool.Add(newExtraLifeItem);
-            }
+            PopulateExtraLifeItemsPool(INITIAL_EXTRA_LIFE_ITEMS_POOL_SIZE);
         }
 
         if (lentInteractables == null)
@@ -126,6 +151,26 @@ public class InteractablesManager : Singleton<InteractablesManager>
         }
 
         RecycleAllInteractables();
+    }
+
+    private void PopulateExtraLifeItemsPool(int amout)
+    {
+        for (int i = 0; i < amout; i++)
+        {
+            ExtraLifeItem newExtraLifeItem = Instantiate(extraLifeItemPreFab);
+            newExtraLifeItem.gameObject.SetActive(false);
+            extraLifeItemsPool.Add(newExtraLifeItem);
+        }
+    }
+
+    private void PopulateClothingItemsPool(int amout)
+    {
+        for (int i = 0; i < amout; i++)
+        {
+            ClothingItem newClothingItem = Instantiate(clothingItemsPreFab);
+            newClothingItem.gameObject.SetActive(false);
+            clothingItemsPool.Add(newClothingItem);
+        }
     }
 
     private void Update()
@@ -178,6 +223,10 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 {
                     x = UnityEngine.Random.Range(0, spawnSpots.GetLength(0));
                     y = UnityEngine.Random.Range(0, spawnSpots.GetLength(1));
+                    if(y != 0 && lowestFloorEnforceChance.IsPositive() && spawnSpots[x, 0]== SpawnSpot.FREE)
+                    {
+                        y = 0;
+                    }
                     if (spawnSpots[x, y] == SpawnSpot.FREE)
                     {
                         freeSpotFound = true;
@@ -195,24 +244,53 @@ public class InteractablesManager : Singleton<InteractablesManager>
         }      
     }
 
+    #region Lending and Recycling:
+
     private Interactable[] LendRandomClothingItems(int amount)
     {
         if (clothingItemsPool == null || clothingItemsPool.Count < amount)
         {
             Debug.LogError("Pool's closed!");
-            return null;
+            if(clothingItemsPool != null)
+            {
+                Debug.LogWarning("Populating pool");
+                PopulateClothingItemsPool(CLOTHING_ITEMS_POOL_EMERGENCY_BOOST);
+            }
+            else
+            {
+                return null;
+            }
         }
         Interactable[] lentItems = new Interactable[amount];
+        int clothingItemsPoolCount = clothingItemsPool.Count;
         for (int i = 0; i < lentItems.Length; i++)
         {
-            int index = UnityEngine.Random.Range(0, clothingItemsPool.Count);
+            int index = clothingItemsPoolCount -1 -i; //UnityEngine.Random.Range(0, clothingItemsPool.Count);
             Interactable interactable = clothingItemsPool[index];
-            clothingItemsPool.RemoveAt(index);
 
+            //TODO: change this:
+            ClothingItem clothingItem = interactable as ClothingItem;
+            ClothingType type = (ClothingType)UnityEngine.Random.Range(0, (int)ClothingType.LENGTH);
+            Mesh mesh =null;
+            Material material = null;
+
+            for (int j = 0; j < clothingTypeProperties.Length; j++)
+            {
+                if(clothingTypeProperties[j].GetClothingType() == type)
+                {
+                    mesh = clothingTypeProperties[j].GetRandomMesh();
+                    material = clothingTypeProperties[j].GetRandomMaterial();
+                }
+            }
+            clothingItem.ChangeType(type, material, mesh);
             lentItems[i] = interactable;
         }
 
+        clothingItemsPool.RemoveRange(clothingItemsPoolCount - amount, amount);
+
         lentInteractables.AddRange(lentItems);
+        
+
         return lentItems;
     }
 
@@ -221,7 +299,15 @@ public class InteractablesManager : Singleton<InteractablesManager>
         if (extraLifeItemsPool == null || extraLifeItemsPool.Count <= 0)
         {
             Debug.LogError("Pool's closed!");
-            return null;
+            if (extraLifeItemsPool != null)
+            {
+                Debug.LogWarning("Populating pool");
+                PopulateExtraLifeItemsPool(EXTRA_LIFE_ITEMS_POOL_EMERGENCY_BOOST);
+            }
+            else
+            {
+                return null;
+            }
         }
         int index = 0;
         Interactable lentItem = extraLifeItemsPool[index];
@@ -266,4 +352,5 @@ public class InteractablesManager : Singleton<InteractablesManager>
         lentInteractables.Clear();
 
     }
+    #endregion
 }

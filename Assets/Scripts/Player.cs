@@ -67,6 +67,12 @@ public class Player : Singleton<Player>
     public static event Action<UInt32> OnWashedItemsChanged;
     #endregion
 
+    #region Graphics:
+
+    [SerializeField] private Animator animator;
+
+    #endregion
+
 
     private void OnEnable()
     {
@@ -198,6 +204,7 @@ public class Player : Singleton<Player>
             bool toJump = Input.GetKeyDown(KeyCode.Space);
             if (toJump)
             {
+                animator.SetTrigger("Jump");
                 yVelocity = jumpForce;
             }
         }
@@ -224,6 +231,7 @@ public class Player : Singleton<Player>
                 {
                     LoseALife();
                 }
+
             }
             else if (interactable is ExtraLifeItem)
             {
@@ -234,10 +242,32 @@ public class Player : Singleton<Player>
         }
     }
 
+    [SerializeField] private LayerMask interactablesLayerMask;
+    [SerializeField] private float ClothingItemsInFrontCheckDistance = 5f;
+
+    private void FixedUpdate()
+    {
+        CheckForClothingItemsInFront();
+    }
+
+    private void CheckForClothingItemsInFront()
+    {
+        RaycastHit raycastHit;
+        Physics.Raycast(transform.position, Vector3.forward, out raycastHit, ClothingItemsInFrontCheckDistance, interactablesLayerMask);
+        if (raycastHit.collider != null)
+        {
+            ClothingItem clothingItem = raycastHit.collider.gameObject.GetComponent<ClothingItem>();
+
+            if (clothingItem != null)
+            {
+                animator.SetTrigger("OpenDoor");
+            }
+        }
+    }
+
     private void WasheItem()
     {
         WashedItems += 1;
-        InformationText.Instance.UpdateText(null, null, WashedItems.ToString());
     }
 
     private void LoseALife()
