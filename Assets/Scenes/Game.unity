@@ -1809,7 +1809,7 @@ PrefabInstance:
     - target: {fileID: 5142485788596048699, guid: 3bf3639df66514bf3889e40e812afcb9,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 29.752274
+      value: 179.99998
       objectReference: {fileID: 0}
     - target: {fileID: 5142485788596048699, guid: 3bf3639df66514bf3889e40e812afcb9,
         type: 3}
@@ -1854,7 +1854,7 @@ PrefabInstance:
     - target: {fileID: 5478852036326090937, guid: 3bf3639df66514bf3889e40e812afcb9,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5478852036326090937, guid: 3bf3639df66514bf3889e40e812afcb9,
         type: 3}
@@ -2228,6 +2228,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &963194229
 MonoBehaviour:
+
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2240,6 +2241,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 1205525723}
   offset: {x: 0, y: 0, z: 0}
+
 --- !u!1 &1016410395
 GameObject:
   m_ObjectHideFlags: 0
@@ -2813,7 +2815,8 @@ MonoBehaviour:
   interactablesLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  ClothingItemsInFrontCheckDistance: 5
+  ClothingItemsInFrontCheckDistance: 1
+  ClothingItemsInFrontCheckOrigin: {fileID: 986384130}
 --- !u!143 &1205525725
 CharacterController:
   m_ObjectHideFlags: 0
