@@ -244,6 +244,8 @@ public class Player : Singleton<Player>
 
     [SerializeField] private LayerMask interactablesLayerMask;
     [SerializeField] private float ClothingItemsInFrontCheckDistance = 5f;
+    [SerializeField] private Transform ClothingItemsInFrontCheckOrigin;
+    private ClothingItem lastClothingItemAccommodatedFor;//Hacky...
 
     private void FixedUpdate()
     {
@@ -253,13 +255,16 @@ public class Player : Singleton<Player>
     private void CheckForClothingItemsInFront()
     {
         RaycastHit raycastHit;
-        Physics.Raycast(transform.position, Vector3.forward, out raycastHit, ClothingItemsInFrontCheckDistance, interactablesLayerMask);
+        Physics.Raycast
+            (ClothingItemsInFrontCheckOrigin.position, 
+            Vector3.forward, out raycastHit, ClothingItemsInFrontCheckDistance);
         if (raycastHit.collider != null)
         {
             ClothingItem clothingItem = raycastHit.collider.gameObject.GetComponent<ClothingItem>();
 
-            if (clothingItem != null)
+            if (clothingItem != null && clothingItem != lastClothingItemAccommodatedFor)
             {
+                lastClothingItemAccommodatedFor = clothingItem;
                 animator.SetTrigger("OpenDoor");
             }
         }

@@ -1809,7 +1809,7 @@ PrefabInstance:
     - target: {fileID: 5142485788596048699, guid: 3bf3639df66514bf3889e40e812afcb9,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 29.752274
+      value: 179.99998
       objectReference: {fileID: 0}
     - target: {fileID: 5142485788596048699, guid: 3bf3639df66514bf3889e40e812afcb9,
         type: 3}
@@ -1854,7 +1854,7 @@ PrefabInstance:
     - target: {fileID: 5478852036326090937, guid: 3bf3639df66514bf3889e40e812afcb9,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5478852036326090937, guid: 3bf3639df66514bf3889e40e812afcb9,
         type: 3}
@@ -2223,8 +2223,38 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1205525723}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 12, y: 180, z: 0}
+--- !u!1 &986384129
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 986384130}
+  m_Layer: 0
+  m_Name: RayCastOrigin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &986384130
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 986384129}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.346, z: 0.556}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1205525723}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1016410395
 GameObject:
   m_ObjectHideFlags: 0
@@ -2770,6 +2800,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 986384130}
   - {fileID: 963194228}
   - {fileID: 266744614}
   m_Father: {fileID: 0}
@@ -2799,7 +2830,8 @@ MonoBehaviour:
   interactablesLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  ClothingItemsInFrontCheckDistance: 5
+  ClothingItemsInFrontCheckDistance: 1
+  ClothingItemsInFrontCheckOrigin: {fileID: 986384130}
 --- !u!143 &1205525725
 CharacterController:
   m_ObjectHideFlags: 0
