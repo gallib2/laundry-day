@@ -5,11 +5,28 @@ using UnityEngine;
 
 public class InteractablesManager : Singleton<InteractablesManager>
 {
+    [Serializable]
+    private struct Chance
+    {
+        public int minimum;
+        public int demand;
+        public int maximum;
+        public bool IsPositive()
+        {
+            return (UnityEngine.Random.Range(minimum, maximum + 1) >= demand);
+        }
+    }
+    [SerializeField] private Chance lowestFloorEnforceChance;
+
     [SerializeField] private ClothingItem clothingItemsPreFab;
     [SerializeField] private ExtraLifeItem extraLifeItemPreFab;
     private static List< ClothingItem> clothingItemsPool;
     private static List<ExtraLifeItem> extraLifeItemsPool;
     private static List<Interactable> lentInteractables;
+    private const int INITIAL_CLOTHING_ITEMS_POOL_SIZE = 32;
+    private const int INITIAL_EXTRA_LIFE_ITEMS_POOL_SIZE = 4;
+    private const int CLOTHING_ITEMS_POOL_EMERGENCY_BOOST = 16;
+    private const int EXTRA_LIFE_ITEMS_POOL_EMERGENCY_BOOST = 2;
 
     List<Interactable> interactablesToBeSpawned;
 
@@ -119,26 +136,13 @@ public class InteractablesManager : Singleton<InteractablesManager>
         if(clothingItemsPool == null)
         {
             clothingItemsPool = new List<ClothingItem>();
-            //for (int i = 0; i < clothingItemsPreFabs.Length; i++)
-            {
-                for (int j = 0; j < 56; j++)
-                {
-                    ClothingItem newClothingItem = Instantiate(clothingItemsPreFab);
-                    newClothingItem.gameObject.SetActive(false);
-                    clothingItemsPool.Add(newClothingItem);
-                }
-            }
+            PopulateClothingItemsPool(INITIAL_CLOTHING_ITEMS_POOL_SIZE);
         }
 
         if (extraLifeItemsPool == null)
         {
             extraLifeItemsPool = new List<ExtraLifeItem>();
-            for (int j = 0; j < 5; j++)
-            {
-                ExtraLifeItem newExtraLifeItem = Instantiate(extraLifeItemPreFab);
-                newExtraLifeItem.gameObject.SetActive(false);
-                extraLifeItemsPool.Add(newExtraLifeItem);
-            }
+            PopulateExtraLifeItemsPool(INITIAL_EXTRA_LIFE_ITEMS_POOL_SIZE);
         }
 
         if (lentInteractables == null)
@@ -147,6 +151,26 @@ public class InteractablesManager : Singleton<InteractablesManager>
         }
 
         RecycleAllInteractables();
+    }
+
+    private void PopulateExtraLifeItemsPool(int amout)
+    {
+        for (int i = 0; i < amout; i++)
+        {
+            ExtraLifeItem newExtraLifeItem = Instantiate(extraLifeItemPreFab);
+            newExtraLifeItem.gameObject.SetActive(false);
+            extraLifeItemsPool.Add(newExtraLifeItem);
+        }
+    }
+
+    private void PopulateClothingItemsPool(int amout)
+    {
+        for (int i = 0; i < amout; i++)
+        {
+            ClothingItem newClothingItem = Instantiate(clothingItemsPreFab);
+            newClothingItem.gameObject.SetActive(false);
+            clothingItemsPool.Add(newClothingItem);
+        }
     }
 
     private void Update()
@@ -199,6 +223,10 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 {
                     x = UnityEngine.Random.Range(0, spawnSpots.GetLength(0));
                     y = UnityEngine.Random.Range(0, spawnSpots.GetLength(1));
+                    if(y != 0 && lowestFloorEnforceChance.IsPositive() && spawnSpots[x, 0]== SpawnSpot.FREE)
+                    {
+                        y = 0;
+                    }
                     if (spawnSpots[x, y] == SpawnSpot.FREE)
                     {
                         freeSpotFound = true;
@@ -223,7 +251,15 @@ public class InteractablesManager : Singleton<InteractablesManager>
         if (clothingItemsPool == null || clothingItemsPool.Count < amount)
         {
             Debug.LogError("Pool's closed!");
-            return null;
+            if(clothingItemsPool != null)
+            {
+                Debug.LogWarning("Populating pool");
+                PopulateClothingItemsPool(CLOTHING_ITEMS_POOL_EMERGENCY_BOOST);
+            }
+            else
+            {
+                return null;
+            }
         }
         Interactable[] lentItems = new Interactable[amount];
         int clothingItemsPoolCount = clothingItemsPool.Count;
@@ -263,7 +299,15 @@ public class InteractablesManager : Singleton<InteractablesManager>
         if (extraLifeItemsPool == null || extraLifeItemsPool.Count <= 0)
         {
             Debug.LogError("Pool's closed!");
-            return null;
+            if (extraLifeItemsPool != null)
+            {
+                Debug.LogWarning("Populating pool");
+                PopulateExtraLifeItemsPool(EXTRA_LIFE_ITEMS_POOL_EMERGENCY_BOOST);
+            }
+            else
+            {
+                return null;
+            }
         }
         int index = 0;
         Interactable lentItem = extraLifeItemsPool[index];

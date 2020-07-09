@@ -231,6 +231,7 @@ public class Player : Singleton<Player>
                 {
                     LoseALife();
                 }
+
             }
             else if (interactable is ExtraLifeItem)
             {
@@ -238,6 +239,29 @@ public class Player : Singleton<Player>
             }
 
             interactable.Interact();
+        }
+    }
+
+    [SerializeField] private LayerMask interactablesLayerMask;
+    [SerializeField] private float ClothingItemsInFrontCheckDistance = 5f;
+
+    private void FixedUpdate()
+    {
+        CheckForClothingItemsInFront();
+    }
+
+    private void CheckForClothingItemsInFront()
+    {
+        RaycastHit raycastHit;
+        Physics.Raycast(transform.position, Vector3.forward, out raycastHit, ClothingItemsInFrontCheckDistance, interactablesLayerMask);
+        if (raycastHit.collider != null)
+        {
+            ClothingItem clothingItem = raycastHit.collider.gameObject.GetComponent<ClothingItem>();
+
+            if (clothingItem != null)
+            {
+                animator.SetTrigger("OpenDoor");
+            }
         }
     }
 
