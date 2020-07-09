@@ -9,11 +9,12 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private TMPro.TextMeshProUGUI livesText;
     [SerializeField] private TMPro.TextMeshProUGUI washedItemsText;
     [SerializeField] private TMPro.TextMeshProUGUI clothingTypeChangeWarningText;
+    [SerializeField] private TMPro.TextMeshProUGUI currentClothingTypeRequiredText;
     [SerializeField] private Image currentClothingTypeRequiredImage;
     [SerializeField] private Image nextClothingTypeRequiredImage;
 
-    [SerializeField] private Sprite[] currentClothingTypeRequiredSprites;
-    [SerializeField] private Sprite[] nextClothingTypeRequiredSprites;
+    [SerializeField] private Sprite[] clothingTypeRequiredSprites;
+    //[SerializeField] private Sprite[] nextClothingTypeRequiredSprites;
     [SerializeField] private  GameObject gameOverPopUp;
     [SerializeField] private GameObject pauseMenu;
 
@@ -43,8 +44,6 @@ public class UIManager : Singleton<UIManager>
         GameManager.OnRestart -= Initialise;
         GameManager.OnPause -= ShowPauseMenu;
         GameManager.OnUnPause -= HidePauseMenu;
-
-
     }
 
     private void Start()
@@ -75,11 +74,14 @@ public class UIManager : Singleton<UIManager>
     private void UpdateClothingTypeRequired
         (ClothingType currentClothingTypeRequired, ClothingType nextClothingTypeRequired)
     {
-        currentClothingTypeRequiredImage.sprite = 
-            currentClothingTypeRequiredSprites[(int)currentClothingTypeRequired];
+        currentClothingTypeRequiredImage.sprite =
+            clothingTypeRequiredSprites[(int)currentClothingTypeRequired];
+        currentClothingTypeRequiredImage.SetNativeSize();
         nextClothingTypeRequiredImage.sprite =
-            nextClothingTypeRequiredSprites[(int)nextClothingTypeRequired];
+            clothingTypeRequiredSprites[(int)nextClothingTypeRequired];
+        nextClothingTypeRequiredImage.SetNativeSize();
 
+        currentClothingTypeRequiredText.text = currentClothingTypeRequired.ToString();
         clothingTypeChangeWarningText.text = "";
 
     }
