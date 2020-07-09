@@ -38,36 +38,31 @@ public class Settings : Singleton<Settings>
 	{
 		CameraOptions = new CameraOption[CAMERA_OPTIONS_NUMBER];
 		CameraOptions[0].Name = "Option x";
-		CameraOptions[0].Position = new Vector3(0, 3.4f, -10.91f);
-		CameraOptions[0].Rotation = Quaternion.Euler(3.52f, 0f, 0f);
+		CameraOptions[0].ToFollowOnX = false;
+		CameraOptions[0].FieldOfView = 65.0f;
+		CameraOptions[0].Offset = new Vector3(0.0f, 5.0f, -20f);
 
-		CameraOptions[1].Name = "Option y";
-		CameraOptions[1].Position = new Vector3(0, 2f, 0f);
-		CameraOptions[1].Rotation = Quaternion.Euler(0, 0f, 0f);
+		CameraOptions[1].Name = "Follow Player";
+		CameraOptions[1].ToFollowOnX = true;
+		CameraOptions[1].FieldOfView = 70.0f;
+		CameraOptions[1].Offset = new Vector3(0.0f, 2.5f, -18f);
 
 		CameraOptions[2].Name = "Option z";
-		CameraOptions[2].Position = new Vector3(0, 3.4f, -10.91f);
-		CameraOptions[2].Rotation = Quaternion.Euler(3.52f, 0f, 0f);
+		CameraOptions[2].ToFollowOnX = false;
+		CameraOptions[2].FieldOfView = 65.0f;
+		CameraOptions[2].Offset = new Vector3(0.0f, 10.0f, -20f);
 	}
 }
 
 [System.Serializable]
 public struct CameraOption 
 {
-	private Vector3 position;
-	public Quaternion rotation;
-
     public string Name { get; set; }
 
-    public Quaternion Rotation
-	{
-		get { return rotation; }
-		set { rotation = value; }
-	}
+    public bool ToFollowOnX { get; set; }
 
-	public Vector3 Position
-	{
-		get { return position; }
-		set { position = value; }
-	}
+    public float FieldOfView { get; set; }
+
+    public Vector3 Offset { get; set; }
+
 }

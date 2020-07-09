@@ -158,9 +158,9 @@ public class Player : Singleton<Player>
 
         if(!forbidSwitchingLanesWhileAirborne || controller.isGrounded)
         {
-            bool toMoveRight = /*MobileInput.SwipeRight ||*/
+            bool toMoveRight = MobileInput.Instance.SwipeRight ||
             Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D);
-            bool toMoveLeft = /*MobileInput.SwipeLeft ||*/
+            bool toMoveLeft = MobileInput.Instance.SwipeLeft ||
                 Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A);
             if (toMoveLeft)
             {
@@ -201,7 +201,7 @@ public class Player : Singleton<Player>
     {
         if (controller.isGrounded)
         {
-            bool toJump = Input.GetKeyDown(KeyCode.Space);
+            bool toJump = Input.GetKeyDown(KeyCode.Space) || MobileInput.Instance.SwipeUp ;
             if (toJump)
             {
                 animator.SetTrigger("Jump");
