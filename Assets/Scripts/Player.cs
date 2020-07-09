@@ -67,6 +67,12 @@ public class Player : Singleton<Player>
     public static event Action<UInt32> OnWashedItemsChanged;
     #endregion
 
+    #region Graphics:
+
+    [SerializeField] private Animator animator;
+
+    #endregion
+
 
     private void OnEnable()
     {
@@ -198,6 +204,7 @@ public class Player : Singleton<Player>
             bool toJump = Input.GetKeyDown(KeyCode.Space);
             if (toJump)
             {
+                animator.SetTrigger("Jump");
                 yVelocity = jumpForce;
             }
         }
@@ -237,7 +244,6 @@ public class Player : Singleton<Player>
     private void WasheItem()
     {
         WashedItems += 1;
-        InformationText.Instance.UpdateText(null, null, WashedItems.ToString());
     }
 
     private void LoseALife()

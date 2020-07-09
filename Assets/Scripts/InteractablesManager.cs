@@ -3,11 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
 public class InteractablesManager : Singleton<InteractablesManager>
 {
-    [SerializeField] private ClothingItem[] clothingItemsPreFabs;
+    [SerializeField] private ClothingItem clothingItemsPreFab;
     [SerializeField] private ExtraLifeItem extraLifeItemPreFab;
     private static List< ClothingItem> clothingItemsPool;
     private static List<ExtraLifeItem> extraLifeItemsPool;
@@ -38,6 +36,29 @@ public class InteractablesManager : Singleton<InteractablesManager>
     {
         FREE = 0, OCCUPIED = 1,
     }
+
+    [Serializable]
+    private class ClothingTypeProperties
+    {
+        [SerializeField] private ClothingType clothingType; 
+        [SerializeField] private Mesh[] meshes;
+        [SerializeField] private Material[] materials;
+        public ClothingType GetClothingType()
+        {
+            return clothingType;
+        }
+
+        public Mesh GetRandomMesh()
+        {
+            return meshes[UnityEngine.Random.Range(0, meshes.Length)];
+        }
+        public Material GetRandomMaterial()
+        {
+            return materials[UnityEngine.Random.Range(0, materials.Length)];
+        }
+    }
+
+    [SerializeField] private ClothingTypeProperties[] clothingTypeProperties;
 
     private void OnEnable()
     {
@@ -98,11 +119,11 @@ public class InteractablesManager : Singleton<InteractablesManager>
         if(clothingItemsPool == null)
         {
             clothingItemsPool = new List<ClothingItem>();
-            for (int i = 0; i < clothingItemsPreFabs.Length; i++)
+            //for (int i = 0; i < clothingItemsPreFabs.Length; i++)
             {
-                for (int j = 0; j < 20; j++)
+                for (int j = 0; j < 56; j++)
                 {
-                    ClothingItem newClothingItem = Instantiate(clothingItemsPreFabs[i]);
+                    ClothingItem newClothingItem = Instantiate(clothingItemsPreFab);
                     newClothingItem.gameObject.SetActive(false);
                     clothingItemsPool.Add(newClothingItem);
                 }
@@ -195,6 +216,8 @@ public class InteractablesManager : Singleton<InteractablesManager>
         }      
     }
 
+    #region Lending and Recycling:
+
     private Interactable[] LendRandomClothingItems(int amount)
     {
         if (clothingItemsPool == null || clothingItemsPool.Count < amount)
@@ -203,16 +226,35 @@ public class InteractablesManager : Singleton<InteractablesManager>
             return null;
         }
         Interactable[] lentItems = new Interactable[amount];
+        int clothingItemsPoolCount = clothingItemsPool.Count;
         for (int i = 0; i < lentItems.Length; i++)
         {
-            int index = UnityEngine.Random.Range(0, clothingItemsPool.Count);
+            int index = clothingItemsPoolCount -1 -i; //UnityEngine.Random.Range(0, clothingItemsPool.Count);
             Interactable interactable = clothingItemsPool[index];
-            clothingItemsPool.RemoveAt(index);
 
+            //TODO: change this:
+            ClothingItem clothingItem = interactable as ClothingItem;
+            ClothingType type = (ClothingType)UnityEngine.Random.Range(0, (int)ClothingType.LENGTH);
+            Mesh mesh =null;
+            Material material = null;
+
+            for (int j = 0; j < clothingTypeProperties.Length; j++)
+            {
+                if(clothingTypeProperties[j].GetClothingType() == type)
+                {
+                    mesh = clothingTypeProperties[j].GetRandomMesh();
+                    material = clothingTypeProperties[j].GetRandomMaterial();
+                }
+            }
+            clothingItem.ChangeType(type, material, mesh);
             lentItems[i] = interactable;
         }
 
+        clothingItemsPool.RemoveRange(clothingItemsPoolCount - amount, amount);
+
         lentInteractables.AddRange(lentItems);
+        
+
         return lentItems;
     }
 
@@ -266,4 +308,5 @@ public class InteractablesManager : Singleton<InteractablesManager>
         lentInteractables.Clear();
 
     }
+    #endregion
 }
