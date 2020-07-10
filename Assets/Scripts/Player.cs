@@ -232,10 +232,12 @@ public class Player : Singleton<Player>
                 ClothingType clothingType = clothingItem.ClothingType;
                 if(clothingType == GameManager.CurrentClothingTypeRequired)
                 {
+                    SoundSettings.Instance.PlaySound(SoundNames.CollectGood);
                     WasheItem();
                 }
                 else
                 {
+                    SoundSettings.Instance.PlaySound(SoundNames.CollectBad);
                     LoseALife();
                 }
 
