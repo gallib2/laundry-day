@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class World : Singleton<World>
 {
-    public const float LANE_HORIZONTAL_SPACING = 5.0f;
+    public float horizontalLaneSpacing = 5.0f;
+    public static float HorizontalLaneSpacing
+    {
+        get { return Instance.horizontalLaneSpacing; }
+    }
+
     public const float LANE_VERTICAL_SPACING = 3.5f;
 
     private static Vector2[,] lanesXYs;
@@ -20,17 +25,17 @@ public class World : Singleton<World>
         InitialiseLanes();
     }
 
-    private static void InitialiseLanes()
+    private void InitialiseLanes()
     {
         lanesXYs = new Vector2[NUMBER_OF_LANES, NUMBER_OF_VERTICAL_DIVISIONS_PER_LANE];
         int middleLaneIndex = NUMBER_OF_LANES / 2;
-        float xNormaliser = middleLaneIndex * LANE_HORIZONTAL_SPACING;
+        float xNormaliser = middleLaneIndex * horizontalLaneSpacing;
         for (int x = 0; x < NUMBER_OF_LANES; x++)
         {
             for (int y = 0; y < NUMBER_OF_VERTICAL_DIVISIONS_PER_LANE; y++)
             {
                 lanesXYs[x,y] = new Vector2
-                    (((LANE_HORIZONTAL_SPACING * x) - xNormaliser), y * LANE_VERTICAL_SPACING);
+                    (((horizontalLaneSpacing * x) - xNormaliser), y * LANE_VERTICAL_SPACING);
                 Debug.Log("LaneXY = " + lanesXYs[x, y].ToString());
             }
         }

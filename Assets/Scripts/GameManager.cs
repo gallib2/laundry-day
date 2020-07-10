@@ -51,6 +51,11 @@ public class GameManager : Singleton<GameManager>
         Initialise();
     }
 
+    public void BackToMenu()
+    {
+        ScenesManager.LoadScene(Scene.MAIN_MENU);
+    }
+
     public void Restart()
     {
         OnRestart();
