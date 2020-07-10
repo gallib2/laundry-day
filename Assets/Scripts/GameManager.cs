@@ -78,6 +78,7 @@ public class GameManager : Singleton<GameManager>
         GameIsOver = false;
         InitialiseClothingTypeRequired();
         UnPauseGame();
+        SoundSettings.Instance.PlaySound(SoundNames.Background);
     }
 
     private void DetermineNextClothingTypeChangeSchedule()
@@ -139,6 +140,8 @@ public class GameManager : Singleton<GameManager>
     private void GameOver()
     {
         GameIsOver = true;
+        SoundSettings.Instance.StopSound(SoundNames.Background);
+        SoundSettings.Instance.PlaySound(SoundNames.Lose);
         OnGameOver();
     }
 
