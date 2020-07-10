@@ -52,7 +52,7 @@ public class Player : Singleton<Player>
         }
     }
 
-    [SerializeField] private int LIVES_AT_START = 3;
+    //[SerializeField] private int LIVES_AT_START = 3;
     public static event Action<int> OnLivesChanged;   
     private UInt32 _washedItems;
     public UInt32 WashedItems
@@ -100,7 +100,14 @@ public class Player : Singleton<Player>
         jumpForce = Settings.Instance.IsSetJumpForce ? Settings.Instance.PlayeJumpForce : jumpForce;
         timePassedSinceStart = 0;
         maximumSpeedReached = false;
-        Lives = LIVES_AT_START;
+
+        int livesAtStart = Settings.Instance.LivesAtStart;
+        if (livesAtStart <= 0)
+        {
+            Debug.LogWarning("Illegal lives At Start Value.");
+            livesAtStart = 666;
+        }
+        Lives = livesAtStart;
 
         WashedItems = 0;
 
@@ -175,11 +182,11 @@ public class Player : Singleton<Player>
         Vector3 targetPosition = transform.position.z * Vector3.forward;
         if (desiredLane == (int)Lane.Left)
         {
-            targetPosition += Vector3.left * World.LANE_HORIZONTAL_SPACING;
+            targetPosition += Vector3.left * World.HorizontalLaneSpacing;
         }
         else if (desiredLane == (int)Lane.Right)
         {
-            targetPosition += Vector3.right * World.LANE_HORIZONTAL_SPACING;
+            targetPosition += Vector3.right * World.HorizontalLaneSpacing;
         }
 
         xVelocity = (targetPosition - transform.position).normalized.x * currentSpeed;

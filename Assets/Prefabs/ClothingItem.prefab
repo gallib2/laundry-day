@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 620116441421266917}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.42, y: 1.42, z: 1.42}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3289538761829382620}
   m_RootOrder: 0
@@ -40,7 +40,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 620116441421266917}
-  m_Mesh: {fileID: -6114063861268850592, guid: a50097c7db11d4cabac7816fdc746a0c, type: 3}
+  m_Mesh: {fileID: -6114063861268850592, guid: ed00934e84772401e934de682d8beb76, type: 3}
 --- !u!23 &7243102734170675393
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -123,8 +123,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4628315022213941979}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.6, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: -0.154, z: 0}
+  m_LocalScale: {x: 1.32, y: 1.32, z: 1.32}
   m_Children:
   - {fileID: 1138424811879286147}
   m_Father: {fileID: 7449725034773655621}
@@ -178,6 +178,7 @@ MonoBehaviour:
   collider: {fileID: 4173157153661338493}
   meshRenderer: {fileID: 7243102734170675393}
   meshFilter: {fileID: 7170263339625241350}
+  graphicsParent: {fileID: 3289538761829382620}
   clothingType: 0
 --- !u!65 &4173157153661338493
 BoxCollider:
