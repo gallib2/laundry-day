@@ -20,18 +20,23 @@ public class UISettings : MonoBehaviour
     [SerializeField]
     private Dropdown dropdownCameraPositionOptions;
 
+    [SerializeField] private Text livesAtStartText;
+    [SerializeField] private Slider livesAtStartSlider;
+
     public bool SetMinSpeed { get; set; }
     public bool SetMaxSpeed { get; set; }
 
-    void Start()
+    private void Start()
     {
         textPlayerMinimumSpeed.text = sliderPlayerMinimumSpeed.value.ToString();
         textPlayerMaximumSpeed.text = sliderPlayerMaximumSpeed.value.ToString();
         textPlayerJumpForce.text = sliderPlayerJumpForce.value.ToString();
+        livesAtStartText.text = livesAtStartSlider.value.ToString();
 
+        dropdownCameraPositionOptions.options.Clear();
         for (int i = 0; i < Settings.Instance.CameraOptionsNumber; i++)
         {
-            dropdownCameraPositionOptions.options[i].text = Settings.Instance.CameraOptions[i].Name;
+            dropdownCameraPositionOptions.options.Add(new Dropdown.OptionData(Settings.Instance.CameraOptions[i].Name));
         }
     }
 
@@ -56,6 +61,13 @@ public class UISettings : MonoBehaviour
         Settings.Instance.IsSetCameraOptions = true;
 
         Settings.Instance.PlayeJumpForce = sliderPlayerJumpForce.value;
+        Settings.Instance.LivesAtStart = (int)livesAtStartSlider.value;
+    }
+
+    public void SetLivesAtStart()
+    {
+        livesAtStartText.text = livesAtStartSlider.value.ToString();
+        Settings.Instance.LivesAtStartIsSet = true;
     }
 
     public void SetPlayerMinimumSpeed()
@@ -69,6 +81,7 @@ public class UISettings : MonoBehaviour
         textPlayerMaximumSpeed.text = sliderPlayerMaximumSpeed.value.ToString();
         Settings.Instance.SetMaxSpeed = true;
     }
+
     public void SetPlayerJumpForce()
     {
         textPlayerJumpForce.text = sliderPlayerJumpForce.value.ToString();

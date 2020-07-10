@@ -282,7 +282,8 @@ public class InteractablesManager : Singleton<InteractablesManager>
                     material = clothingTypeProperties[j].GetRandomMaterial();
                 }
             }
-            clothingItem.ChangeType(type, material, mesh);
+            Quaternion angle = Quaternion.Euler(0, 0, UnityEngine.Random.Range(-6, 6));//TODO:DEHARDCODE
+            clothingItem.ChangeType(type, material, mesh, angle);
             lentItems[i] = interactable;
         }
 
