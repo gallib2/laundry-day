@@ -4,20 +4,25 @@ using UnityEngine;
 
 public class Settings : Singleton<Settings>
 {
-	private const int CAMERA_OPTIONS_NUMBER = 6;
+	private const int CAMERA_OPTIONS_NUMBER = 7;
 
 	private CameraOption chosenCameraOption;
-	public int PlayerMinimumSpeed { get; set; }
-	public bool SetMinSpeed { get; set; }
-    public bool LivesAtStartIsSet { get; set; }
-    public int PlayerMaximumSpeed { get; set; }
+	public int PlayerMinimumSpeed { get; set; }//Why is this an int?
+    public bool SetMinSpeed { get; set; }
+    public int PlayerMaximumSpeed { get; set; }//Why is this an int?
 	public bool SetMaxSpeed { get; set; }
-	public bool IsSetCameraOptions { get; set; }
+    public int PlayerXSpeed { get; set; } //Why is this an int?
+    public bool PlayerXSpeedIsSet { get; set; }
+    public bool IsSetCameraOptions { get; set; }
 	public CameraOption[] CameraOptions { get; private set; }
 	public float PlayeJumpForce { get; set; }
 	public bool IsSetJumpForce { get; set; }
 
     public int LivesAtStart { get; set; }
+    public bool LivesAtStartIsSet { get; set; }
+    public bool ForbidSwitchingLanesWhileAirborne { get; set; }
+    public bool ForbidSwitchingLanesWhileAirborneIsSet { get; set; }
+
 
     public CameraOption ChosenCameraOption
 	{
@@ -78,6 +83,9 @@ public class Settings : Singleton<Settings>
         CameraOptions[5].Offset = new Vector3(0f, 4.9f, -12.69f);
         CameraOptions[5].Angle = Quaternion.Euler(8.76f, 0, 0);
 
+        CameraOptions[6] = new CameraOption
+            ("SideView1", false, false, 62, new Vector3(-6.3f, 6.75f, -12.65f), Quaternion.Euler(10.55f, 21.55f, 0));
+
     }
 }
 
@@ -94,5 +102,16 @@ public struct CameraOption
     public Vector3 Offset { get; set; }
 
     public Quaternion Angle { get; set; }
+
+    public CameraOption 
+        (string name, bool followOnX, bool followOnY, float fieldOfView, Vector3 offset, Quaternion angle)
+    {
+        Name = name;
+        ToFollowOnX = followOnX;
+        FollowOnY = followOnY;
+        FieldOfView = fieldOfView;
+        Offset = offset;
+        Angle = angle;
+    }
 
 }
