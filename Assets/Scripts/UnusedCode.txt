@@ -38,3 +38,34 @@
         nextExtraLifeItemSpawn = (UInt32)(playerMileage +
              UnityEngine.Random.Range((int)minimumUnitsBetweenExtraLifeItemSpawns, (int)maximumUnitsBetweenExtraLifeItemSpawns));
     }
+
+
+
+	    private struct SettingsBlock
+    {
+        public int playerMinimumZSpeed;//Why is this an int?
+        public int playerMaximumZSpeed;//Why is this an int?
+        public int playerXSpeed;//Why is this an int?
+        public int cameraOptionsIndex;
+        public float playerJumpForce;
+        public int livesAtStart;
+        public bool forbidSwitchingLanesWhileAirborne;
+    }
+
+    private SettingsBlock settingsBlock;
+
+
+	   /* public int PlayerMinimumZSpeed { get; set; }//Why is this an int?
+    [SerializeField] private int DefaultPlayerMinimumZSpeed;
+    public int PlayerMaximumZSpeed { get; set; }//Why is this an int?
+    [SerializeField] private int DefaultPlayerMaximumZSpeed;
+    public int PlayerXSpeed { get; set; } //Why is this an int?
+    [SerializeField] private int DefaultPlayerXSpeed;
+    public int CameraOptionsIndex { get;  set; }
+    [SerializeField] private int DefaultCameraOptionsIndex;
+    public float PlayerJumpForce { get; set; }
+    [SerializeField] private float DefaultPlayerJumpForce;
+    public int LivesAtStart { get; set; }
+    [SerializeField] private int DefaultLivesAtStart;
+    public bool ForbidSwitchingLanesWhileAirborne { get; set; }
+    [SerializeField] private bool DefaultForbidSwitchingLanesWhileAirborne;*/
