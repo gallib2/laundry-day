@@ -11,8 +11,23 @@ public class MainCamera : MonoBehaviour
     private bool toFollowPlayerOnX;
     private bool followPlayerOnY;
 
+    private void OnEnable()
+    {
+        GameManager.OnRestart += Initialise;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRestart -= Initialise;
+    }
+
 
     void Start()
+    {
+        Initialise();
+    }
+
+    private void Initialise()
     {
         CameraOption cameraOptions;
         if (Settings.Instance.IsSetCameraOptions)
@@ -23,18 +38,12 @@ public class MainCamera : MonoBehaviour
         {
             cameraOptions = Settings.Instance.CameraOptions[5];
         }
-    
-         toFollowPlayerOnX = cameraOptions.ToFollowOnX;
+
+        toFollowPlayerOnX = cameraOptions.ToFollowOnX;
         followPlayerOnY = cameraOptions.FollowOnY;
-         Camera.main.fieldOfView = cameraOptions.FieldOfView;
-         offset = cameraOptions.Offset;
-         transform.rotation = cameraOptions.Angle;
-        
-       /* else
-        {
-            offset = new Vector3(0.0f, 5.0f, -20f);
-            Camera.main.fieldOfView = 65;
-        }*/
+        Camera.main.fieldOfView = cameraOptions.FieldOfView;
+        offset = cameraOptions.Offset;
+        transform.rotation = cameraOptions.Angle;
     }
 
     void Update()

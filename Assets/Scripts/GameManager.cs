@@ -33,6 +33,7 @@ public class GameManager : Singleton<GameManager>
     public static event Action<float> OnClothingTypeChangeWarning;
 
     [SerializeField] private int warningOfClothingTypeChangeDuration;
+    [SerializeField] private GameObject menu;
 
     private void OnEnable()
     {
@@ -53,7 +54,13 @@ public class GameManager : Singleton<GameManager>
 
     public void BackToMenu()
     {
-        ScenesManager.LoadScene(Scene.MAIN_MENU);
+        GameIsPaused = true;
+        menu.SetActive(true);
+    }
+
+    public void StartMenuClicked()
+    {
+        OnRestart();
     }
 
     public void Restart()
@@ -77,7 +84,7 @@ public class GameManager : Singleton<GameManager>
     {
         GameIsOver = false;
         InitialiseClothingTypeRequired();
-        UnPauseGame();
+        PauseGame();
         SoundSettings.Instance.PlaySound(SoundNames.Background);
     }
 
