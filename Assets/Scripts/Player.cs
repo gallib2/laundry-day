@@ -10,15 +10,17 @@ public class Player : Singleton<Player>
     #region Movement:
     [Header("Movement:")]
     private CharacterController controller;
-    private float currentSpeed;
-    [SerializeField] private float minimumSpeed;
-    [SerializeField] private float maximumSpeed;
+    private float currentSpeedOnZ;
+    private float speedOnX;
+
+    [SerializeField] private float minimumSpeedOnZ;
+    [SerializeField] private float maximumSpeedOnZ;
     [SerializeField] private float timeToGetToMaximumSpeed;
     private bool maximumSpeedReached;
     private float timePassedSinceStart;
 
     [SerializeField] private float jumpForce = 10.0f;
-    [SerializeField] private bool forbidSwitchingLanesWhileAirborne = true;
+    private bool forbidSwitchingLanesWhileAirborne = true;
     [SerializeField] private float gravity = 1.0f;
     private float yVelocity = 0.0f;
     private float xVelocity = 0.0f;
@@ -69,7 +71,9 @@ public class Player : Singleton<Player>
 
     #region Graphics:
 
-    [SerializeField] private Animator animator;
+    [SerializeField] private Animator modelAnimator;
+   [SerializeField] private ParticleSystem bubbleBurstParticleSystem;
+
 
     #endregion
 
@@ -95,9 +99,12 @@ public class Player : Singleton<Player>
         controller.enabled = false;
         transform.position = startingPosition;
         controller.enabled = true;
-        minimumSpeed = Settings.Instance.SetMinSpeed ? Settings.Instance.PlayerMinimumSpeed : minimumSpeed;
-        maximumSpeed = Settings.Instance.SetMaxSpeed ? Settings.Instance.PlayerMaximumSpeed : maximumSpeed;
+        minimumSpeedOnZ = Settings.Instance.SetMinSpeed ? Settings.Instance.PlayerMinimumSpeed : minimumSpeedOnZ;
+        maximumSpeedOnZ = Settings.Instance.SetMaxSpeed ? Settings.Instance.PlayerMaximumSpeed : maximumSpeedOnZ;
+        speedOnX = Settings.Instance.PlayerXSpeedIsSet ? Settings.Instance.PlayerXSpeed : maximumSpeedOnZ;
         jumpForce = Settings.Instance.IsSetJumpForce ? Settings.Instance.PlayeJumpForce : jumpForce;
+        forbidSwitchingLanesWhileAirborne = 
+            Settings.Instance.ForbidSwitchingLanesWhileAirborneIsSet ? Settings.Instance.ForbidSwitchingLanesWhileAirborne : true;
         timePassedSinceStart = 0;
         maximumSpeedReached = false;
 
@@ -133,16 +140,16 @@ public class Player : Singleton<Player>
 
     private void Accelerate()
     {
-        float normaliser = maximumSpeed - minimumSpeed;
-        float normalisedSpeed = (timePassedSinceStart / (timeToGetToMaximumSpeed / normaliser)) + minimumSpeed;
-        if(normalisedSpeed < maximumSpeed)
+        float normaliser = maximumSpeedOnZ - minimumSpeedOnZ;
+        float normalisedSpeed = (timePassedSinceStart / (timeToGetToMaximumSpeed / normaliser)) + minimumSpeedOnZ;
+        if(normalisedSpeed < maximumSpeedOnZ)
         {
-            currentSpeed = normalisedSpeed;
+            currentSpeedOnZ = normalisedSpeed;
         }
         else
         {
             maximumSpeedReached = true;
-            currentSpeed = maximumSpeed;
+            currentSpeedOnZ = maximumSpeedOnZ;
             Debug.Log("Maximum speed reached!");
         }
 
@@ -161,7 +168,7 @@ public class Player : Singleton<Player>
     private void Move()
     {
         Vector3 direction = new Vector3(0, 0, 1);
-        Vector3 velocity = direction * currentSpeed;
+        Vector3 velocity = direction * currentSpeedOnZ;
 
         if(!forbidSwitchingLanesWhileAirborne || controller.isGrounded)
         {
@@ -189,7 +196,7 @@ public class Player : Singleton<Player>
             targetPosition += Vector3.right * World.HorizontalLaneSpacing;
         }
 
-        xVelocity = (targetPosition - transform.position).normalized.x * currentSpeed;
+        xVelocity = (targetPosition - transform.position).normalized.x * speedOnX;
 
         CheckJump();
 
@@ -211,7 +218,7 @@ public class Player : Singleton<Player>
             bool toJump = Input.GetKeyDown(KeyCode.Space) || MobileInput.Instance.SwipeUp ;
             if (toJump)
             {
-                animator.SetTrigger("Jump");
+                modelAnimator.SetTrigger("Jump");
                 yVelocity = jumpForce;
             }
         }
@@ -274,13 +281,15 @@ public class Player : Singleton<Player>
             if (clothingItem != null && clothingItem != lastClothingItemAccommodatedFor)
             {
                 lastClothingItemAccommodatedFor = clothingItem;
-                animator.SetTrigger("OpenDoor");
+                modelAnimator.SetTrigger("OpenDoor");
             }
         }
     }
 
     private void WasheItem()
     {
+        bubbleBurstParticleSystem.Play();
+
         WashedItems += 1;
     }
 
@@ -296,6 +305,8 @@ public class Player : Singleton<Player>
 
     private void GainALife()
     {
+        bubbleBurstParticleSystem.Play();
+        modelAnimator.SetTrigger("ExtraLife");
         Lives += 1;
     }
 

@@ -14,7 +14,7 @@ public class SoundSettings: Singleton<SoundSettings>
     public void StopSound(SoundNames soundName)
     {
         SoundAudioClip chosenSound = GetChosenSoundByName(soundName);
-        chosenSound.AudioSource.clip = chosenSound.AudioClip;
+        //chosenSound.AudioSource.clip = chosenSound.AudioClip;
         chosenSound.AudioSource.Stop();
     }
 
