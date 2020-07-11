@@ -36,7 +36,7 @@ public class World : Singleton<World>
             {
                 lanesXYs[x,y] = new Vector2
                     (((horizontalLaneSpacing * x) - xNormaliser), y * LANE_VERTICAL_SPACING);
-                Debug.Log("LaneXY = " + lanesXYs[x, y].ToString());
+                //Debug.Log("LaneXY = " + lanesXYs[x, y].ToString());
             }
         }
     }

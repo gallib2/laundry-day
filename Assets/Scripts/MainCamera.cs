@@ -29,15 +29,7 @@ public class MainCamera : MonoBehaviour
 
     private void Initialise()
     {
-        CameraOption cameraOptions;
-        if (Settings.Instance.IsSetCameraOptions)
-        {
-            cameraOptions = Settings.Instance.ChosenCameraOption;
-        }
-        else
-        {
-            cameraOptions = Settings.Instance.CameraOptions[5];
-        }
+        CameraOption cameraOptions = Settings.Instance.ChosenCameraOption;
 
         toFollowPlayerOnX = cameraOptions.ToFollowOnX;
         followPlayerOnY = cameraOptions.FollowOnY;

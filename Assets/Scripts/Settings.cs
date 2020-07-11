@@ -4,46 +4,63 @@ using UnityEngine;
 
 public class Settings : Singleton<Settings>
 {
-	private const int CAMERA_OPTIONS_NUMBER = 7;
+    [System.Serializable]
+    public struct SettingsBlock
+    {
+        public int playerMinimumZSpeed;//Why is this an int?
+        public int playerMaximumZSpeed;//Why is this an int?
+        public int playerXSpeed;//Why is this an int?
+        public int cameraOptionsIndex;
+        public float playerJumpForce;
+        public int livesAtStart;
+        public bool forbidSwitchingLanesWhileAirborne;
+    }
 
-	private CameraOption chosenCameraOption;
-	public int PlayerMinimumSpeed { get; set; }//Why is this an int?
-    public bool SetMinSpeed { get; set; }
-    public int PlayerMaximumSpeed { get; set; }//Why is this an int?
-	public bool SetMaxSpeed { get; set; }
-    public int PlayerXSpeed { get; set; } //Why is this an int?
-    public bool PlayerXSpeedIsSet { get; set; }
-    public bool IsSetCameraOptions { get; set; }
-	public CameraOption[] CameraOptions { get; private set; }
-	public float PlayeJumpForce { get; set; }
-	public bool IsSetJumpForce { get; set; }
+    private SettingsBlock _currentBlock;
+    public SettingsBlock CurrentBlock
+    {
+        get { return _currentBlock; }
+        set { _currentBlock = value; }
+    }
 
-    public int LivesAtStart { get; set; }
-    public bool LivesAtStartIsSet { get; set; }
-    public bool ForbidSwitchingLanesWhileAirborne { get; set; }
-    public bool ForbidSwitchingLanesWhileAirborneIsSet { get; set; }
+    [SerializeField] private SettingsBlock defaultBlock;
+    public SettingsBlock DefaultBlock
+    {
+        get { return defaultBlock; }
+    }
+
+    private const int CAMERA_OPTIONS_NUMBER = 8;
+    public CameraOption[] CameraOptions { get; private set; }
 
 
     public CameraOption ChosenCameraOption
-	{
-		get { return chosenCameraOption; }
-		set { chosenCameraOption = value; }
-	}
+    {
+        get
+        {
+            return CameraOptions[CurrentBlock.cameraOptionsIndex];
+        }
+    }
 
-	public int CameraOptionsNumber
-	{
-		get { return CAMERA_OPTIONS_NUMBER; }
-	}
+    public int CameraOptionsNumber
+    {
+        get { return CAMERA_OPTIONS_NUMBER; }
+    }
 
-	protected Settings()
+    /*protected Settings()
+    {
+        SetCameraOptions();
+        SetEverythingToDefault();
+    }*/
+    private void Awake()
+    {
+        SetCameraOptions();
+        CurrentBlock = defaultBlock;
+    }
+
+    private void SetCameraOptions()
 	{
 		CameraOptions = new CameraOption[CAMERA_OPTIONS_NUMBER];
-		SetCameraOptions();
-	}
 
-	private void SetCameraOptions()
-	{
-		CameraOptions = new CameraOption[CAMERA_OPTIONS_NUMBER];
 		CameraOptions[0].Name = "Option x";
 		CameraOptions[0].ToFollowOnX = false;
         CameraOptions[0].FollowOnY = true;
@@ -84,7 +101,11 @@ public class Settings : Singleton<Settings>
         CameraOptions[5].Angle = Quaternion.Euler(8.76f, 0, 0);
 
         CameraOptions[6] = new CameraOption
-            ("SideView1", false, false, 62, new Vector3(-6.3f, 6.75f, -12.65f), Quaternion.Euler(10.55f, 21.55f, 0));
+            ("SideView1", false, false, 62, 
+            new Vector3(-6.3f, 6.75f, -12.65f), Quaternion.Euler(10.55f, 21.55f, 0));
+        CameraOptions[7] = new CameraOption
+            ("Sonic's Ass Game", false, false, 62,
+            new Vector3(0f, 7.3f, -11.3f), Quaternion.Euler(18.5f, 0, 0));
 
     }
 }

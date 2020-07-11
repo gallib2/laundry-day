@@ -99,16 +99,17 @@ public class Player : Singleton<Player>
         controller.enabled = false;
         transform.position = startingPosition;
         controller.enabled = true;
-        minimumSpeedOnZ = Settings.Instance.SetMinSpeed ? Settings.Instance.PlayerMinimumSpeed : minimumSpeedOnZ;
-        maximumSpeedOnZ = Settings.Instance.SetMaxSpeed ? Settings.Instance.PlayerMaximumSpeed : maximumSpeedOnZ;
-        speedOnX = Settings.Instance.PlayerXSpeedIsSet ? Settings.Instance.PlayerXSpeed : maximumSpeedOnZ;
-        jumpForce = Settings.Instance.IsSetJumpForce ? Settings.Instance.PlayeJumpForce : jumpForce;
-        forbidSwitchingLanesWhileAirborne = 
-            Settings.Instance.ForbidSwitchingLanesWhileAirborneIsSet ? Settings.Instance.ForbidSwitchingLanesWhileAirborne : true;
+
+        Settings.SettingsBlock settingsBlock =  Settings.Instance.CurrentBlock;
+        minimumSpeedOnZ = settingsBlock.playerMinimumZSpeed;
+        maximumSpeedOnZ = settingsBlock.playerMaximumZSpeed;
+        speedOnX = settingsBlock.playerXSpeed;
+        jumpForce = settingsBlock.playerJumpForce;
+        forbidSwitchingLanesWhileAirborne = settingsBlock.forbidSwitchingLanesWhileAirborne;
         timePassedSinceStart = 0;
         maximumSpeedReached = false;
 
-        int livesAtStart = Settings.Instance.LivesAtStart;
+        int livesAtStart = settingsBlock.livesAtStart;
         if (livesAtStart <= 0)
         {
             Debug.LogWarning("Illegal lives At Start Value.");

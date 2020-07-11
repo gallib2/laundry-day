@@ -60,7 +60,7 @@ public class GameManager : Singleton<GameManager>
 
     public void StartMenuClicked()
     {
-        OnRestart();
+        Restart();
     }
 
     public void Restart()

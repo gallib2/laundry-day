@@ -23,97 +23,103 @@ public class UISettings : MonoBehaviour
     private Dropdown dropdownCameraPositionOptions;
     [SerializeField] Toggle forbidSwitchingLanesWhileAirborneToggle;
 
- [SerializeField] private Text livesAtStartText;
+    [SerializeField] private Text livesAtStartText;
     [SerializeField] private Slider livesAtStartSlider;
 
-    public bool SetMinSpeed { get; set; }
-    public bool SetMaxSpeed { get; set; }
-
     private void Start()
+    {     
+        InitialiseUIElements();
+    }
+
+    private void InitialiseUIElements()
     {
-        textPlayerMinimumZSpeed.text = sliderPlayerMinimumZSpeed.value.ToString();
-        textPlayerMaximumZSpeed.text = sliderPlayerMaximumZSpeed.value.ToString();
-        playerXSpeedText.text = playerXSpeedSlider.value.ToString();
-
-        textPlayerJumpForce.text = sliderPlayerJumpForce.value.ToString();
-        livesAtStartText.text = livesAtStartSlider.value.ToString();
-
         dropdownCameraPositionOptions.options.Clear();
         for (int i = 0; i < Settings.Instance.CameraOptionsNumber; i++)
         {
-            dropdownCameraPositionOptions.options.Add(new Dropdown.OptionData(Settings.Instance.CameraOptions[i].Name));
+            dropdownCameraPositionOptions.options.Add
+                (new Dropdown.OptionData(Settings.Instance.CameraOptions[i].Name));
         }
+
+        ForceUIElementsToShowCurrentSettingsValues();
     }
 
-    public void SetChanges()
+    public void ForceUIElementsToShowCurrentSettingsValues()
+    {
+        Settings.SettingsBlock settingsBlock = Settings.Instance.CurrentBlock;
+        ForceUIElementsToShowSettingsValues(ref settingsBlock);
+
+    }
+
+    public void ForceUIElementsToShowDefaultValues()
+    {
+        Settings.SettingsBlock settingsBlock = Settings.Instance.DefaultBlock;
+        ForceUIElementsToShowSettingsValues(ref settingsBlock);
+    }
+
+    public void ForceUIElementsToShowSettingsValues(ref Settings.SettingsBlock settingsBlock)
+    {
+        sliderPlayerMinimumZSpeed.value = settingsBlock.playerMinimumZSpeed;
+        sliderPlayerMaximumZSpeed.value = settingsBlock.playerMaximumZSpeed;
+        playerXSpeedSlider.value = settingsBlock.playerXSpeed;
+        sliderPlayerJumpForce.value = settingsBlock.playerJumpForce;
+        livesAtStartSlider.value = settingsBlock.livesAtStart;
+
+        forbidSwitchingLanesWhileAirborneToggle.isOn = settingsBlock.forbidSwitchingLanesWhileAirborne;
+
+        dropdownCameraPositionOptions.value = settingsBlock.cameraOptionsIndex;
+
+        UpdateTexts();
+
+    }
+
+
+    public void SetChangesAccordingToUI()
     {
         bool canSetSpeedValues = sliderPlayerMinimumZSpeed.value <= sliderPlayerMaximumZSpeed.value;
-        
+        Settings.SettingsBlock newSettingsBlock;
         if(canSetSpeedValues)
         {
-            Settings.Instance.PlayerMinimumSpeed = (int)sliderPlayerMinimumZSpeed.value;
-            Settings.Instance.PlayerMaximumSpeed = (int)sliderPlayerMaximumZSpeed.value;
-
+            newSettingsBlock.playerMinimumZSpeed = (int)sliderPlayerMinimumZSpeed.value;
+            newSettingsBlock.playerMaximumZSpeed = (int)sliderPlayerMaximumZSpeed.value;
         }
         else
         {
             // min value cant be bigger then the max. so if min < max the min is set for both
-            Settings.Instance.PlayerMinimumSpeed = (int)sliderPlayerMinimumZSpeed.value;
-            Settings.Instance.PlayerMaximumSpeed = (int)sliderPlayerMinimumZSpeed.value;
+            newSettingsBlock.playerMinimumZSpeed = (int)sliderPlayerMinimumZSpeed.value;
+            newSettingsBlock.playerMaximumZSpeed = (int)sliderPlayerMinimumZSpeed.value;
         }
 
-        Settings.Instance.PlayerXSpeed = (int)playerXSpeedSlider.value;
+        newSettingsBlock.playerXSpeed = (int)playerXSpeedSlider.value;
 
         int index = dropdownCameraPositionOptions.value;
-        Settings.Instance.ChosenCameraOption = Settings.Instance.CameraOptions[index];
-        Settings.Instance.IsSetCameraOptions = true;
+        newSettingsBlock.cameraOptionsIndex = index;
 
-        Settings.Instance.PlayeJumpForce = sliderPlayerJumpForce.value;
-        Settings.Instance.LivesAtStart = (int)livesAtStartSlider.value;
+        newSettingsBlock.playerJumpForce = sliderPlayerJumpForce.value;
+        newSettingsBlock.livesAtStart = (int)livesAtStartSlider.value;
 
-        Settings.Instance.ForbidSwitchingLanesWhileAirborne = forbidSwitchingLanesWhileAirborneToggle.isOn;
+        newSettingsBlock.forbidSwitchingLanesWhileAirborne = forbidSwitchingLanesWhileAirborneToggle.isOn;
+
+
+        Settings.Instance.CurrentBlock = newSettingsBlock;
     }
 
-    public void SetForbidSwitchingLanesWhileAirborne()
-    {
-        Settings.Instance.ForbidSwitchingLanesWhileAirborneIsSet = true;
-    }
-
-    public void SetLivesAtStart()
-    {
-        livesAtStartText.text = livesAtStartSlider.value.ToString();
-        Settings.Instance.LivesAtStartIsSet = true;
-    }
-
-    public void SetPlayerMinimumSpeed()
+    public void UpdateTexts()
     {
         textPlayerMinimumZSpeed.text = sliderPlayerMinimumZSpeed.value.ToString();
-        Settings.Instance.SetMinSpeed = true;
-    }
 
-    public void SetPlayerMaximumSpeed()
-    {
         textPlayerMaximumZSpeed.text = sliderPlayerMaximumZSpeed.value.ToString();
-        Settings.Instance.SetMaxSpeed = true;
-    }
 
-    public void SetPlayerXSpeed()
-    {
         playerXSpeedText.text = playerXSpeedSlider.value.ToString();
-        Settings.Instance.PlayerXSpeedIsSet = true;
-    }
 
-    public void SetPlayerJumpForce()
-    {
         textPlayerJumpForce.text = sliderPlayerJumpForce.value.ToString();
-        Settings.Instance.IsSetJumpForce = true;
+
+        livesAtStartText.text = livesAtStartSlider.value.ToString();
     }
 
-
-    public void SetCancel()
+    /*public void SetCancel()
     {
         Settings.Instance.SetMaxSpeed = false;
         Settings.Instance.SetMinSpeed = false;
         Settings.Instance.IsSetCameraOptions = false;
-    }
+    }*/
 }
