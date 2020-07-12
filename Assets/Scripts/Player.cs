@@ -15,7 +15,7 @@ public class Player : Singleton<Player>
 
     [SerializeField] private float minimumSpeedOnZ;
     [SerializeField] private float maximumSpeedOnZ;
-    [SerializeField] private float timeToGetToMaximumSpeed;
+    private float timeToReachMaximumZSpeed;
     private bool maximumSpeedReached;
     private float timePassedSinceStart;
 
@@ -38,6 +38,8 @@ public class Player : Singleton<Player>
         }
     }
     public static event Action<UInt32> OnMileageChanged;
+
+    private InputType inputType;
 
     #endregion
 
@@ -72,11 +74,9 @@ public class Player : Singleton<Player>
     #region Graphics:
 
     [SerializeField] private Animator modelAnimator;
-   [SerializeField] private ParticleSystem bubbleBurstParticleSystem;
-
+    [SerializeField] private ParticleSystem bubbleBurstParticleSystem;
 
     #endregion
-
 
     private void OnEnable()
     {
@@ -107,7 +107,10 @@ public class Player : Singleton<Player>
         jumpForce = settingsBlock.playerJumpForce;
         forbidSwitchingLanesWhileAirborne = settingsBlock.forbidSwitchingLanesWhileAirborne;
         timePassedSinceStart = 0;
+
+        timeToReachMaximumZSpeed = settingsBlock.timeToReachMaximumZSpeed;
         maximumSpeedReached = false;
+
 
         int livesAtStart = settingsBlock.livesAtStart;
         if (livesAtStart <= 0)
@@ -128,11 +131,14 @@ public class Player : Singleton<Player>
     {
         if (!GameManager.GameIsOver && !GameManager.GameIsPaused)
         {
+            inputType = InputManager.GetInput();
+
             timePassedSinceStart += Time.deltaTime;
             if (!maximumSpeedReached)
             {
                 Accelerate();
             }
+
             Move();
             CalculateMileage();
         }
@@ -142,7 +148,7 @@ public class Player : Singleton<Player>
     private void Accelerate()
     {
         float normaliser = maximumSpeedOnZ - minimumSpeedOnZ;
-        float normalisedSpeed = (timePassedSinceStart / (timeToGetToMaximumSpeed / normaliser)) + minimumSpeedOnZ;
+        float normalisedSpeed = (timePassedSinceStart / (timeToReachMaximumZSpeed / normaliser)) + minimumSpeedOnZ;
         if(normalisedSpeed < maximumSpeedOnZ)
         {
             currentSpeedOnZ = normalisedSpeed;
@@ -173,15 +179,15 @@ public class Player : Singleton<Player>
 
         if(!forbidSwitchingLanesWhileAirborne || controller.isGrounded)
         {
-            bool toMoveRight = MobileInput.Instance.SwipeRight ||
+          /*  bool toMoveRight = MobileInput.Instance.SwipeRight ||
             Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D);
             bool toMoveLeft = MobileInput.Instance.SwipeLeft ||
-                Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A);
-            if (toMoveLeft)
+                Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A);*/
+            if (inputType == InputType.LEFT)
             {
                 MoveLane(false);
             }
-            if (toMoveRight)
+            if (inputType == InputType.RIGHT)
             {
                 MoveLane(true);
             }
@@ -216,7 +222,8 @@ public class Player : Singleton<Player>
     {
         if (controller.isGrounded)
         {
-            bool toJump = Input.GetKeyDown(KeyCode.Space) || MobileInput.Instance.SwipeUp ;
+            // Input.GetKeyDown(KeyCode.Space) || MobileInput.Instance.SwipeUp ;
+            bool toJump = (inputType == InputType.UP);
             if (toJump)
             {
                 modelAnimator.SetTrigger("Jump");

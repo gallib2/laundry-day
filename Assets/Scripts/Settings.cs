@@ -7,6 +7,7 @@ public class Settings : Singleton<Settings>
     [System.Serializable]
     public struct SettingsBlock
     {
+        public float timeToReachMaximumZSpeed;
         public int playerMinimumZSpeed;//Why is this an int?
         public int playerMaximumZSpeed;//Why is this an int?
         public int playerXSpeed;//Why is this an int?
@@ -14,6 +15,8 @@ public class Settings : Singleton<Settings>
         public float playerJumpForce;
         public int livesAtStart;
         public bool forbidSwitchingLanesWhileAirborne;
+        public bool useInputButtons;
+
     }
 
     private SettingsBlock _currentBlock;
