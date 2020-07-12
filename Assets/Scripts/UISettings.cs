@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class UISettings : MonoBehaviour
 {
+    [SerializeField] private Slider timeToReachMaximumZSpeedSlider;
+    [SerializeField] private Text timeToReachMaximumZSpeedText;
     [SerializeField]
     private Slider sliderPlayerMinimumZSpeed;
     [SerializeField]
@@ -22,6 +24,7 @@ public class UISettings : MonoBehaviour
     [SerializeField]
     private Dropdown dropdownCameraPositionOptions;
     [SerializeField] Toggle forbidSwitchingLanesWhileAirborneToggle;
+    [SerializeField] Toggle useInputButtonsToggle;
 
     [SerializeField] private Text livesAtStartText;
     [SerializeField] private Slider livesAtStartSlider;
@@ -58,6 +61,7 @@ public class UISettings : MonoBehaviour
 
     public void ForceUIElementsToShowSettingsValues(ref Settings.SettingsBlock settingsBlock)
     {
+        timeToReachMaximumZSpeedSlider.value = settingsBlock.timeToReachMaximumZSpeed;
         sliderPlayerMinimumZSpeed.value = settingsBlock.playerMinimumZSpeed;
         sliderPlayerMaximumZSpeed.value = settingsBlock.playerMaximumZSpeed;
         playerXSpeedSlider.value = settingsBlock.playerXSpeed;
@@ -65,6 +69,8 @@ public class UISettings : MonoBehaviour
         livesAtStartSlider.value = settingsBlock.livesAtStart;
 
         forbidSwitchingLanesWhileAirborneToggle.isOn = settingsBlock.forbidSwitchingLanesWhileAirborne;
+        useInputButtonsToggle.isOn = settingsBlock.useInputButtons;
+
 
         dropdownCameraPositionOptions.value = settingsBlock.cameraOptionsIndex;
 
@@ -75,8 +81,11 @@ public class UISettings : MonoBehaviour
 
     public void SetChangesAccordingToUI()
     {
-        bool canSetSpeedValues = sliderPlayerMinimumZSpeed.value <= sliderPlayerMaximumZSpeed.value;
         Settings.SettingsBlock newSettingsBlock;
+
+        newSettingsBlock.timeToReachMaximumZSpeed = timeToReachMaximumZSpeedSlider.value;
+
+        bool canSetSpeedValues = sliderPlayerMinimumZSpeed.value <= sliderPlayerMaximumZSpeed.value;
         if(canSetSpeedValues)
         {
             newSettingsBlock.playerMinimumZSpeed = (int)sliderPlayerMinimumZSpeed.value;
@@ -98,13 +107,15 @@ public class UISettings : MonoBehaviour
         newSettingsBlock.livesAtStart = (int)livesAtStartSlider.value;
 
         newSettingsBlock.forbidSwitchingLanesWhileAirborne = forbidSwitchingLanesWhileAirborneToggle.isOn;
-
+        newSettingsBlock.useInputButtons = useInputButtonsToggle.isOn;
 
         Settings.Instance.CurrentBlock = newSettingsBlock;
     }
 
     public void UpdateTexts()
     {
+        timeToReachMaximumZSpeedText.text = timeToReachMaximumZSpeedSlider.value.ToString();
+
         textPlayerMinimumZSpeed.text = sliderPlayerMinimumZSpeed.value.ToString();
 
         textPlayerMaximumZSpeed.text = sliderPlayerMaximumZSpeed.value.ToString();
