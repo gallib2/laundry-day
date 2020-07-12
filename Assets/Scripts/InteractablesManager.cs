@@ -16,17 +16,24 @@ public class InteractablesManager : Singleton<InteractablesManager>
             return (UnityEngine.Random.Range(minimum, maximum + 1) >= demand);
         }
     }
-    [SerializeField] private Chance lowestFloorEnforceChance;
 
+    [SerializeField] private Chance lowestFloorEnforceChance;
     [SerializeField] private ClothingItem clothingItemsPreFab;
+    [SerializeField] private Hanger hangerPreFab;
     [SerializeField] private ExtraLifeItem extraLifeItemPreFab;
-    private static List< ClothingItem> clothingItemsPool;
+    private static List<ClothingItem> clothingItemsPool;
     private static List<ExtraLifeItem> extraLifeItemsPool;
     private static List<Interactable> lentInteractables;
+
+    private static List<Hanger> hangersPool;
+    private static List<Hanger> lentHangers;
+
     private const int INITIAL_CLOTHING_ITEMS_POOL_SIZE = 32;
     private const int INITIAL_EXTRA_LIFE_ITEMS_POOL_SIZE = 4;
     private const int CLOTHING_ITEMS_POOL_EMERGENCY_BOOST = 16;
     private const int EXTRA_LIFE_ITEMS_POOL_EMERGENCY_BOOST = 2;
+    private const int INITIAL_HANGERS_POOL_SIZE = 12;
+    private const int HANGERS_POOL_EMERGENCY_BOOST = 6;
 
     List<Interactable> interactablesToBeSpawned;
 
@@ -145,17 +152,29 @@ public class InteractablesManager : Singleton<InteractablesManager>
             PopulateExtraLifeItemsPool(INITIAL_EXTRA_LIFE_ITEMS_POOL_SIZE);
         }
 
+        if (hangersPool == null)
+        {
+            hangersPool = new List<Hanger>();
+            PopulateHangersPool(INITIAL_HANGERS_POOL_SIZE);
+        }
+
         if (lentInteractables == null)
         {
             lentInteractables = new List<Interactable>();
         }
 
+        if (lentHangers == null)
+        {
+            lentHangers = new List<Hanger>();
+        }
+
         RecycleAllInteractables();
+        RecycleAllHangers();
     }
 
-    private void PopulateExtraLifeItemsPool(int amout)
+    private void PopulateExtraLifeItemsPool(int ammout)
     {
-        for (int i = 0; i < amout; i++)
+        for (int i = 0; i < ammout; i++)
         {
             ExtraLifeItem newExtraLifeItem = Instantiate(extraLifeItemPreFab);
             newExtraLifeItem.gameObject.SetActive(false);
@@ -163,13 +182,23 @@ public class InteractablesManager : Singleton<InteractablesManager>
         }
     }
 
-    private void PopulateClothingItemsPool(int amout)
+    private void PopulateClothingItemsPool(int ammout)
     {
-        for (int i = 0; i < amout; i++)
+        for (int i = 0; i < ammout; i++)
         {
             ClothingItem newClothingItem = Instantiate(clothingItemsPreFab);
             newClothingItem.gameObject.SetActive(false);
             clothingItemsPool.Add(newClothingItem);
+        }
+    }
+
+    private void PopulateHangersPool(int ammout)
+    {
+        for (int i = 0; i < ammout; i++)
+        {
+            Hanger newHanger = Instantiate(hangerPreFab);
+            newHanger.gameObject.SetActive(false);
+            hangersPool.Add(newHanger);
         }
     }
 
@@ -214,6 +243,10 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
         if(interactablesToBeSpawned.Count > 0)
         {
+
+            float positionZ = player.transform.position.z + spawnDistanceFromPlayer;
+            bool hangerNeeded = false;
+
             for (int i = 0; i < interactablesToBeSpawned.Count; i++)
             {
                 bool freeSpotFound = false;
@@ -223,9 +256,16 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 {
                     x = UnityEngine.Random.Range(0, spawnSpots.GetLength(0));
                     y = UnityEngine.Random.Range(0, spawnSpots.GetLength(1));
-                    if(y != 0 && lowestFloorEnforceChance.IsPositive() && spawnSpots[x, 0]== SpawnSpot.FREE)
+                    if(y != 0)
                     {
-                        y = 0;
+                        if (lowestFloorEnforceChance.IsPositive() && spawnSpots[x, 0] == SpawnSpot.FREE)
+                        {
+                            y = 0;
+                        }
+                        else
+                        {
+                            hangerNeeded = true;
+                        }
                     }
                     if (spawnSpots[x, y] == SpawnSpot.FREE)
                     {
@@ -235,8 +275,16 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 spawnSpots[x, y] = SpawnSpot.OCCUPIED;
                 interactablesToBeSpawned[i].gameObject.SetActive(true);
                 Vector2 laneXY = World.LanesXYs[x, y];
-                float positionZ = player.transform.position.z + spawnDistanceFromPlayer;
                 interactablesToBeSpawned[i].transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
+            }
+
+            if (hangerNeeded)
+            {
+                Hanger hanger = LendAHanger();
+
+                hanger.gameObject.SetActive(true);
+                Vector2 laneXY = World.LanesXYs[1, 1];//HARDCODED
+                hanger.transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
             }
 
             ClearSpawnSpots();
@@ -317,7 +365,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
         lentInteractables.Add(lentItem);
         return lentItem;
     }
-  
+
     public static void RecycleInteractable(Interactable interactable)
     {
         interactable.gameObject.SetActive(false);
@@ -352,6 +400,47 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
         lentInteractables.Clear();
 
+    }
+
+    private Hanger LendAHanger()
+    {
+        if (hangersPool == null || hangersPool.Count <= 0)
+        {
+            Debug.LogError("Pool's closed!");
+            if (hangersPool != null)
+            {
+                Debug.LogWarning("Populating pool");
+                PopulateExtraLifeItemsPool(HANGERS_POOL_EMERGENCY_BOOST);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        int index = 0;
+        Hanger lentItem = hangersPool[index];
+        hangersPool.RemoveAt(index);
+
+        lentHangers.Add(lentItem);
+        return lentItem;
+    }
+
+    public static void RecycleHanger(Hanger hanger)
+    {
+        hanger.gameObject.SetActive(false);
+        hangersPool.Add(hanger);
+
+        lentHangers.Remove(hanger);
+    }
+
+    public static void RecycleAllHangers()
+    {
+        foreach (Hanger hanger in lentHangers)
+        {
+            hanger.gameObject.SetActive(false);
+            hangersPool.Add(hanger);
+        }
+        lentHangers.Clear();
     }
     #endregion
 }
