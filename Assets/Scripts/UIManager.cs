@@ -14,9 +14,9 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private Image nextClothingTypeRequiredImage;
 
     [SerializeField] private Sprite[] clothingTypeRequiredSprites;
-    //[SerializeField] private Sprite[] nextClothingTypeRequiredSprites;
     [SerializeField] private  GameObject gameOverPopUp;
     [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private GameObject[] objectsToDisappearOnGameOver;
 
 
     private void OnEnable()
@@ -53,6 +53,10 @@ public class UIManager : Singleton<UIManager>
 
     private void Initialise()
     {
+        for (int i = 0; i < objectsToDisappearOnGameOver.Length; i++)
+        {
+            objectsToDisappearOnGameOver[i].SetActive(true);
+        }
         gameOverPopUp.SetActive(false);
     }
 
@@ -66,7 +70,7 @@ public class UIManager : Singleton<UIManager>
         livesText.text = lives.ToString();
     }
 
-    private void UpdateWashedItemsText(System.UInt32 washedItems)
+    private void UpdateWashedItemsText(System.UInt32 washedItems, System.UInt32 washedItemsCombo )
     {
         washedItemsText.text = washedItems.ToString();
     }
@@ -93,6 +97,10 @@ public class UIManager : Singleton<UIManager>
 
     private void ShowGameOverPopUp()
     {
+        for (int i = 0; i < objectsToDisappearOnGameOver.Length; i++)
+        {
+            objectsToDisappearOnGameOver[i].SetActive(false);
+        }
         gameOverPopUp.SetActive(true);
     }
 

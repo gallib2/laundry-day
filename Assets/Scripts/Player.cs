@@ -65,10 +65,12 @@ public class Player : Singleton<Player>
         private set
         {
             _washedItems = value;
-            OnWashedItemsChanged(_washedItems);
+            OnWashedItemsChanged(_washedItems, washedItemsCombo);
         }
     }
-    public static event Action<UInt32> OnWashedItemsChanged;
+    private UInt32 washedItemsCombo;
+
+    public static event Action<UInt32, UInt32> OnWashedItemsChanged;
     #endregion
 
     #region Graphics:
@@ -81,11 +83,15 @@ public class Player : Singleton<Player>
     private void OnEnable()
     {
         GameManager.OnRestart += Initialise;
+        GameManager.OnGameOver += GameOver;
+
     }
 
     private void OnDisable()
     {
         GameManager.OnRestart -= Initialise;
+        GameManager.OnGameOver -= GameOver;
+
     }
 
     void Start()
@@ -121,22 +127,29 @@ public class Player : Singleton<Player>
         Lives = livesAtStart;
 
         WashedItems = 0;
+        washedItemsCombo = 0;
 
         MileageInUnits = 0;
 
         desiredLane = 1;
+
+        modelAnimator.SetBool("GameIsOver", false);
+
+
     }
 
     void Update()
     {
-        if (!GameManager.GameIsOver && !GameManager.GameIsPaused)
+        if (!GameManager.GameIsPaused)
         {
-            inputType = InputManager.GetInput();
-
-            timePassedSinceStart += Time.deltaTime;
-            if (!maximumSpeedReached)
+            if (!GameManager.GameIsOver)
             {
-                Accelerate();
+                inputType = InputManager.GetInput();
+                timePassedSinceStart += Time.deltaTime;
+                if (!maximumSpeedReached)
+                {
+                    Accelerate();
+                }
             }
 
             Move();
@@ -175,14 +188,13 @@ public class Player : Singleton<Player>
     private void Move()
     {
         Vector3 direction = new Vector3(0, 0, 1);
-        Vector3 velocity = direction * currentSpeedOnZ;
+        Vector3 velocity = 
+            (!GameManager.GameIsOver ? direction * currentSpeedOnZ : Vector3.zero);
+        bool isGrounded = controller.isGrounded;
 
-        if(!forbidSwitchingLanesWhileAirborne || controller.isGrounded)
+        if (!forbidSwitchingLanesWhileAirborne || isGrounded)
         {
-          /*  bool toMoveRight = MobileInput.Instance.SwipeRight ||
-            Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D);
-            bool toMoveLeft = MobileInput.Instance.SwipeLeft ||
-                Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A);*/
+
             if (inputType == InputType.LEFT)
             {
                 MoveLane(false);
@@ -205,7 +217,12 @@ public class Player : Singleton<Player>
 
         xVelocity = (targetPosition - transform.position).normalized.x * speedOnX;
 
-        CheckJump();
+        CheckJump(isGrounded);
+
+        if (!isGrounded)
+        {
+            yVelocity -= gravity * Time.deltaTime;
+        }
 
         velocity.x = xVelocity;
         velocity.y = yVelocity;
@@ -218,22 +235,20 @@ public class Player : Singleton<Player>
         desiredLane = Mathf.Clamp(desiredLane, (int)Lane.Left, (int)Lane.Right);
     }
 
-    private void CheckJump()
+    private void CheckJump(bool isGrounded)
     {
-        if (controller.isGrounded)
+        if (isGrounded)
         {
             // Input.GetKeyDown(KeyCode.Space) || MobileInput.Instance.SwipeUp ;
             bool toJump = (inputType == InputType.UP);
             if (toJump)
             {
+                SoundSettings.Instance.PlaySound(SoundNames.Jump);
                 modelAnimator.SetTrigger("Jump");
                 yVelocity = jumpForce;
             }
         }
-        else
-        {
-            yVelocity -= gravity * Time.deltaTime;
-        }
+
     }
 
     private void OnTriggerEnter(Collider other)
@@ -247,12 +262,10 @@ public class Player : Singleton<Player>
                 ClothingType clothingType = clothingItem.ClothingType;
                 if(clothingType == GameManager.CurrentClothingTypeRequired)
                 {
-                    SoundSettings.Instance.PlaySound(SoundNames.CollectGood);
-                    WasheItem();
+                    WashItem();
                 }
                 else
                 {
-                    SoundSettings.Instance.PlaySound(SoundNames.CollectBad);
                     LoseALife();
                 }
 
@@ -294,21 +307,32 @@ public class Player : Singleton<Player>
         }
     }
 
-    private void WasheItem()
+    private void WashItem()
     {
         bubbleBurstParticleSystem.Play();
 
         WashedItems += 1;
+        SoundSettings.Instance.PlaySound(SoundNames.CollectGood);
+        washedItemsCombo += 1;
     }
 
     private void LoseALife()
     {
+        modelAnimator.SetTrigger("LoseALife");
+        SoundSettings.Instance.PlaySound(SoundNames.CollectBad);
+
         Lives -= 1;
+        washedItemsCombo = 0;
         /*if (Lives <= 0)
         {
             Lose();
             return;
         }*/
+    }
+
+    private void GameOver()
+    {
+        modelAnimator.SetBool("GameIsOver",true);
     }
 
     private void GainALife()

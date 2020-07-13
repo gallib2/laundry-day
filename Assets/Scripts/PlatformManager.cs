@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class PlatformManager : Singleton<PlatformManager>
 {
-    [SerializeField] private GameObject[] platformPrefabs;
-    private List<GameObject> platforms;
+    [SerializeField] private Platform[] platformPrefabs;
+    [SerializeField] private Material[] platformMaterials;
+    private List<Platform> platforms;
+    [SerializeField] private Doors doors;
+    int materialsIndex = 0;
 
-    private float zPositionOffset = 0.0f;
-
-    private const float Z_PLATFORM_SIZE = 75.0f;
+   private float zPositionOffset = 0.0f;
+    private const float Z_PLATFORM_SIZE = 100f;
 
     private void OnEnable()
     {
@@ -32,7 +34,7 @@ public class PlatformManager : Singleton<PlatformManager>
 
         if (platforms == null)
         {
-            platforms = new List<GameObject>();
+            platforms = new List<Platform>();
             for (int i = 0; i < platformPrefabs.Length; i++)
             {
                 platforms.Add(Instantiate(platformPrefabs[i]));
@@ -41,14 +43,36 @@ public class PlatformManager : Singleton<PlatformManager>
 
         for (int i = 0; i < platforms.Count; i++)
         {
-            platforms[i].transform.position = new Vector3(0, 0, i * Z_PLATFORM_SIZE);
+            MovePlatformToItsAppropriatePlace(platforms[i]);
         }
-        zPositionOffset += Z_PLATFORM_SIZE * platforms.Count;
     }
 
-    public void RecyclePlatform(GameObject platform)
+    public void RecyclePlatform(Platform platform)
+    {
+        MovePlatformToItsAppropriatePlace(platform);
+    }
+
+    private void MovePlatformToItsAppropriatePlace(Platform platform)
     {
         platform.transform.position = new Vector3(0, 0, zPositionOffset);
+        int newMaterialIndex = platformMaterials.Length - 1;
+        float platformNormalisedZ = platform.transform.position.z + 0.5f;//Adjusting the number slightly to make sure material changes happen in the right spots
+        for (int i = 1; i < InteractablesManager.ClothingItemsGenerationPoints.Length; i++)
+        {
+            if (platformNormalisedZ <= (float)InteractablesManager.ClothingItemsGenerationPoints[i].mileage)
+            {
+                newMaterialIndex = i - 1;
+                break;
+            }
+        }
+        if(newMaterialIndex!= materialsIndex)
+        {
+            materialsIndex = newMaterialIndex;
+            doors.MoveToNewLocation(platform.transform.position);
+        }
+        Material material = platformMaterials[materialsIndex];
+
+        platform.SetMaterial(material);
         zPositionOffset += Z_PLATFORM_SIZE;
     }
 }
