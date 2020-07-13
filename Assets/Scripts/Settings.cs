@@ -8,9 +8,9 @@ public class Settings : Singleton<Settings>
     public struct SettingsBlock
     {
         public float timeToReachMaximumZSpeed;
-        public int playerMinimumZSpeed;//Why is this an int?
-        public int playerMaximumZSpeed;//Why is this an int?
-        public int playerXSpeed;//Why is this an int?
+        public float playerMinimumZSpeed;
+        public float playerMaximumZSpeed;
+        public float playerXSpeed;
         public int cameraOptionsIndex;
         public float playerJumpForce;
         public int livesAtStart;
@@ -49,11 +49,6 @@ public class Settings : Singleton<Settings>
         get { return CAMERA_OPTIONS_NUMBER; }
     }
 
-    /*protected Settings()
-    {
-        SetCameraOptions();
-        SetEverythingToDefault();
-    }*/
     private void Awake()
     {
         SetCameraOptions();
@@ -76,37 +71,31 @@ public class Settings : Singleton<Settings>
         CameraOptions[1].FieldOfView = 70.0f;
 		CameraOptions[1].Offset = new Vector3(0.0f, 2.5f, -18f);
 
-		CameraOptions[2].Name = "Option z";
-		CameraOptions[2].ToFollowOnX = true;
+        CameraOptions[2].Name = "ThirdPerson";
+        CameraOptions[2].ToFollowOnX = false;
         CameraOptions[2].FollowOnY = true;
-        CameraOptions[2].FieldOfView = 65.0f;
-		CameraOptions[2].Offset = new Vector3(0.0f, 10.0f, -20f);
+        CameraOptions[2].FieldOfView = 62f;
+        CameraOptions[2].Offset = new Vector3(0.0f, 10f, -19f);
+        CameraOptions[2].Angle = Quaternion.Euler(16, 0, 0);
 
-        CameraOptions[3].Name = "ThirdPerson";
+        CameraOptions[3].Name = "ThirdPersonFront";
         CameraOptions[3].ToFollowOnX = false;
         CameraOptions[3].FollowOnY = true;
         CameraOptions[3].FieldOfView = 62f;
-        CameraOptions[3].Offset = new Vector3(0.0f, 10f, -19f);
-        CameraOptions[3].Angle = Quaternion.Euler(16, 0, 0);
+        CameraOptions[3].Offset = new Vector3(0.0f, 4f, 20f);
+        CameraOptions[3].Angle = Quaternion.Euler(16, 180, 0);
 
-        CameraOptions[4].Name = "ThirdPersonFront";
+        CameraOptions[4].Name = "ThirdPersonYonatan";
         CameraOptions[4].ToFollowOnX = false;
-        CameraOptions[4].FollowOnY = true;
-        CameraOptions[4].FieldOfView = 62f;
-        CameraOptions[4].Offset = new Vector3(0.0f, 4f, 20f);
-        CameraOptions[4].Angle = Quaternion.Euler(16, 180, 0);
+        CameraOptions[4].FollowOnY = false;
+        CameraOptions[4].FieldOfView = 60f;
+        CameraOptions[4].Offset = new Vector3(0f, 4.9f, -12.69f);
+        CameraOptions[4].Angle = Quaternion.Euler(8.76f, 0, 0);
 
-        CameraOptions[5].Name = "ThirdPersonYonatan";
-        CameraOptions[5].ToFollowOnX = false;
-        CameraOptions[5].FollowOnY = false;
-        CameraOptions[5].FieldOfView = 60f;
-        CameraOptions[5].Offset = new Vector3(0f, 4.9f, -12.69f);
-        CameraOptions[5].Angle = Quaternion.Euler(8.76f, 0, 0);
-
-        CameraOptions[6] = new CameraOption
+        CameraOptions[5] = new CameraOption
             ("SideView1", false, false, 62, 
             new Vector3(-6.3f, 6.75f, -12.65f), Quaternion.Euler(10.55f, 21.55f, 0));
-        CameraOptions[7] = new CameraOption
+        CameraOptions[6] = new CameraOption
             ("Sonic's Ass Game", false, false, 62,
             new Vector3(0f, 7.3f, -11.3f), Quaternion.Euler(18.5f, 0, 0));
 
