@@ -48,8 +48,12 @@ public class InteractablesManager : Singleton<InteractablesManager>
     private UInt32 nextExtraLifeItemSpawn;
 
     [SerializeField] private ClothingItemsGenerationPoint[] clothingItemsGenerationPoints;
+    public static ClothingItemsGenerationPoint[] ClothingItemsGenerationPoints
+    {
+        get { return Instance.clothingItemsGenerationPoints; }
+    }
     [Serializable]
-    private struct ClothingItemsGenerationPoint
+    public struct ClothingItemsGenerationPoint
     {
         public UInt32 mileage;
         public int maxClothingItemsGenerated;
