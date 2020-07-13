@@ -7,22 +7,15 @@ public class UISettings : MonoBehaviour
 {
     [SerializeField] private Slider timeToReachMaximumZSpeedSlider;
     [SerializeField] private Text timeToReachMaximumZSpeedText;
-    [SerializeField]
-    private Slider sliderPlayerMinimumZSpeed;
-    [SerializeField]
-    private Text textPlayerMinimumZSpeed;
-    [SerializeField]
-    private Slider sliderPlayerMaximumZSpeed;
-    [SerializeField]
-    private Text textPlayerMaximumZSpeed;
+    [SerializeField] private Slider sliderPlayerMinimumZSpeed;
+    [SerializeField] private Text textPlayerMinimumZSpeed;
+    [SerializeField] private Slider sliderPlayerMaximumZSpeed;
+    [SerializeField] private Text textPlayerMaximumZSpeed;
     [SerializeField] private Slider playerXSpeedSlider;
     [SerializeField] private Text playerXSpeedText;
-    [SerializeField]
-    private Slider sliderPlayerJumpForce;
-    [SerializeField]
-    private Text textPlayerJumpForce;
-    [SerializeField]
-    private Dropdown dropdownCameraPositionOptions;
+    [SerializeField] private Slider sliderPlayerJumpForce;
+    [SerializeField] private Text textPlayerJumpForce;
+    [SerializeField] private Dropdown dropdownCameraPositionOptions;
     [SerializeField] Toggle forbidSwitchingLanesWhileAirborneToggle;
     [SerializeField] Toggle useInputButtonsToggle;
 
@@ -126,11 +119,4 @@ public class UISettings : MonoBehaviour
 
         livesAtStartText.text = livesAtStartSlider.value.ToString();
     }
-
-    /*public void SetCancel()
-    {
-        Settings.Instance.SetMaxSpeed = false;
-        Settings.Instance.SetMinSpeed = false;
-        Settings.Instance.IsSetCameraOptions = false;
-    }*/
 }
