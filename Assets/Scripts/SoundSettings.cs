@@ -4,11 +4,44 @@ using UnityEngine;
 
 public class SoundSettings: Singleton<SoundSettings>
 {
+    [SerializeField] private float JumpPitchAlteration = 0.08f;
+    [SerializeField] private float goodCollectionPitchAddition = 0.1f;
+    private float goodCollectionPitch;
+
+    private void OnEnable()
+    {
+        Player.OnWashedItemsChanged += DetermineGoodCollectionPitch;
+    }
+
+    private void OnDisable()
+    {
+        Player.OnWashedItemsChanged -= DetermineGoodCollectionPitch;
+    }
+
+    private void DetermineGoodCollectionPitch(System.UInt32 washedItems, System.UInt32 washedItemsCombo)
+    {
+        goodCollectionPitch = (1 + ((float)washedItemsCombo * goodCollectionPitchAddition));
+    }
+
     public void PlaySound(SoundNames soundName)
     {
+
         SoundAudioClip chosenSound = GetChosenSoundByName(soundName);
-        chosenSound.AudioSource.clip = chosenSound.AudioClip;
-        chosenSound.AudioSource.Play();
+        AudioSource source = chosenSound.AudioSource;
+        if (soundName == SoundNames.Jump)
+        {
+            source.pitch = 1 + (Random.Range(-JumpPitchAlteration, JumpPitchAlteration));
+        }
+        else if(soundName == SoundNames.CollectGood)
+        {
+            source.pitch = goodCollectionPitch;
+        }
+        else
+        {
+            source.pitch = 1;
+        }
+        source.clip = chosenSound.AudioClip;
+        source.Play();
     }
 
     public void StopSound(SoundNames soundName)
@@ -39,5 +72,6 @@ public enum SoundNames
     CollectGood,
     CollectBad,
     Lose,
-    GainLife
+    GainLife,
+    Jump
 }

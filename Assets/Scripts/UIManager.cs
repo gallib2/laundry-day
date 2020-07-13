@@ -70,7 +70,7 @@ public class UIManager : Singleton<UIManager>
         livesText.text = lives.ToString();
     }
 
-    private void UpdateWashedItemsText(System.UInt32 washedItems)
+    private void UpdateWashedItemsText(System.UInt32 washedItems, System.UInt32 washedItemsCombo )
     {
         washedItemsText.text = washedItems.ToString();
     }
