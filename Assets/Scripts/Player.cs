@@ -140,9 +140,10 @@ public class Player : Singleton<Player>
 
     void Update()
     {
+
         if (!GameManager.GameIsPaused)
         {
-            if (!GameManager.GameIsOver)
+            if (!GameManager.GameIsOver && !GameManager.IntroIsPlaying)
             {
                 inputType = InputManager.GetInput();
                 timePassedSinceStart += Time.deltaTime;
@@ -189,7 +190,7 @@ public class Player : Singleton<Player>
     {
         Vector3 direction = new Vector3(0, 0, 1);
         Vector3 velocity = 
-            (!GameManager.GameIsOver ? direction * currentSpeedOnZ : Vector3.zero);
+            ((!GameManager.GameIsOver && !GameManager.IntroIsPlaying) ? direction * currentSpeedOnZ : Vector3.zero);
         bool isGrounded = controller.isGrounded;
 
         if (!forbidSwitchingLanesWhileAirborne || isGrounded)

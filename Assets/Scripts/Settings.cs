@@ -98,6 +98,9 @@ public class Settings : Singleton<Settings>
         CameraOptions[6] = new CameraOption
             ("Sonic's Ass Game", false, false, 62,
             new Vector3(0f, 7.3f, -11.3f), Quaternion.Euler(18.5f, 0, 0));
+        CameraOptions[7] = new CameraOption
+          ("SideView2", false, false, 62,
+         new Vector3(-6.55f, 8.68f, -15.8f), Quaternion.Euler(13.4f, 18.5f, 0));
 
     }
 }

@@ -26,7 +26,9 @@ public class SoundAudioClip
 	[SerializeField]
 	private AudioSource audioSource;
 
-	public SoundNames SoundName
+    [SerializeField] private bool loop;
+
+    public SoundNames SoundName
 	{
 		get { return soundName; }
 		set { soundName = value; }
@@ -44,4 +46,9 @@ public class SoundAudioClip
 		set { audioSource = value; }
 	}
 
+    public bool Loop
+    {
+        get { return loop; }
+        set { loop = value; }
+    }
 }

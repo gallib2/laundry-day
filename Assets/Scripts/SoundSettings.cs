@@ -40,6 +40,9 @@ public class SoundSettings: Singleton<SoundSettings>
         {
             source.pitch = 1;
         }
+
+        source.loop = chosenSound.Loop;
+
         source.clip = chosenSound.AudioClip;
         source.Play();
     }
@@ -73,5 +76,9 @@ public enum SoundNames
     CollectBad,
     Lose,
     GainLife,
-    Jump
+    Jump,
+    TickingClock,
+    ClothingTypeRequiredChange,
+    DoorOpening
+
 }
