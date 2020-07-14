@@ -6,14 +6,14 @@ using System.Collections.Generic;
 public class InputButtonsManager : Singleton<InputButtonsManager>
 {
     [SerializeField] private GraphicRaycaster raycaster;
-    PointerEventData pointerEventData;
     [SerializeField] private EventSystem eventSystem;
+    private PointerEventData pointerEventData;
 
     public InputType GetInput()
     {
         InputType inputType = InputType.NONE;
 
-        if (Input.GetMouseButtonDown(0))//This simulates touch input as well
+        if (Input.GetMouseButtonDown(0))
         {
             pointerEventData = new PointerEventData(eventSystem);
             pointerEventData.position = Input.mousePosition;

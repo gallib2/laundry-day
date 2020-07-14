@@ -6,10 +6,11 @@ public class PlatformManager : Singleton<PlatformManager>
 {
     [SerializeField] private Platform[] platformPrefabs;
     [SerializeField] private Material[] platformMaterials;
-    private List<Platform> platforms;
     [SerializeField] private Doors doors;
-    int materialsIndex = 0;
     [SerializeField] private int platformsFromBehindAtInitialisation = 1;
+    
+    private List<Platform> platforms;
+    private int materialsIndex = 0;
 
    private float zPositionOffset = 0.0f;
     private const float Z_PLATFORM_SIZE = 100f;
@@ -57,7 +58,8 @@ public class PlatformManager : Singleton<PlatformManager>
     {
         platform.transform.position = new Vector3(0, 0, zPositionOffset);
         int newMaterialIndex = platformMaterials.Length - 1;
-        float platformNormalisedZ = platform.transform.position.z + 0.5f;//Adjusting the number slightly to make sure material changes happen in the right spots
+        // Adjusting the number slightly to make sure material changes happen in the right spots
+        float platformNormalisedZ = platform.transform.position.z + 0.5f;
         for (int i = 1; i < InteractablesManager.ClothingItemsGenerationPoints.Length; i++)
         {
             if (platformNormalisedZ <= (float)InteractablesManager.ClothingItemsGenerationPoints[i].mileage)

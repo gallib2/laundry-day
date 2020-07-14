@@ -8,7 +8,6 @@ public class Hanger : MonoBehaviour
 
     private void Update()
     {
-        //TODO: no need to check every frame
         if (transform.position.z < Player.Instance.transform.position.z - DYING_DISTANCE)
         {
             Die();

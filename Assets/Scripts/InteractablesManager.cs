@@ -11,6 +11,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
         public int minimum;
         public int demand;
         public int maximum;
+
         public bool IsPositive()
         {
             return (UnityEngine.Random.Range(minimum, maximum + 1) >= demand);
@@ -105,7 +106,6 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
     private void Initialise()
     {
-        Debug.Log("InteractablesManager Initialise");
         InitialisePools();
         InitialiseSpawnSpots();
         InitialiseInteractablesToBeSpawned();
@@ -302,10 +302,8 @@ public class InteractablesManager : Singleton<InteractablesManager>
     {
         if (clothingItemsPool == null || clothingItemsPool.Count < amount)
         {
-            Debug.LogError("Pool's closed!");
             if(clothingItemsPool != null)
             {
-                Debug.LogWarning("Populating pool");
                 PopulateClothingItemsPool(CLOTHING_ITEMS_POOL_EMERGENCY_BOOST);
             }
             else
@@ -317,7 +315,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
         int clothingItemsPoolCount = clothingItemsPool.Count;
         for (int i = 0; i < lentItems.Length; i++)
         {
-            int index = clothingItemsPoolCount -1 -i; //UnityEngine.Random.Range(0, clothingItemsPool.Count);
+            int index = clothingItemsPoolCount -1 -i;
             Interactable interactable = clothingItemsPool[index];
 
             //TODO: change this:
@@ -351,10 +349,8 @@ public class InteractablesManager : Singleton<InteractablesManager>
     {
         if (extraLifeItemsPool == null || extraLifeItemsPool.Count <= 0)
         {
-            Debug.LogError("Pool's closed!");
             if (extraLifeItemsPool != null)
             {
-                Debug.LogWarning("Populating pool");
                 PopulateExtraLifeItemsPool(EXTRA_LIFE_ITEMS_POOL_EMERGENCY_BOOST);
             }
             else
@@ -410,10 +406,8 @@ public class InteractablesManager : Singleton<InteractablesManager>
     {
         if (hangersPool == null || hangersPool.Count <= 0)
         {
-            Debug.LogError("Pool's closed!");
             if (hangersPool != null)
             {
-                Debug.LogWarning("Populating pool");
                 PopulateExtraLifeItemsPool(HANGERS_POOL_EMERGENCY_BOOST);
             }
             else

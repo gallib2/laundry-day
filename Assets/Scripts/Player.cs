@@ -43,7 +43,7 @@ public class Player : Singleton<Player>
 
     #endregion
 
-    #region Washing Related::
+    #region Washing Related:
     [Header("Washing Related:")]
     private int _lives;
     private int Lives
@@ -56,7 +56,6 @@ public class Player : Singleton<Player>
         }
     }
 
-    //[SerializeField] private int LIVES_AT_START = 3;
     public static event Action<int> OnLivesChanged;   
     private UInt32 _washedItems;
     public UInt32 WashedItems
@@ -134,8 +133,6 @@ public class Player : Singleton<Player>
         desiredLane = 1;
 
         modelAnimator.SetBool("GameIsOver", false);
-
-
     }
 
     void Update()
@@ -163,6 +160,7 @@ public class Player : Singleton<Player>
     {
         float normaliser = maximumSpeedOnZ - minimumSpeedOnZ;
         float normalisedSpeed = (timePassedSinceStart / (timeToReachMaximumZSpeed / normaliser)) + minimumSpeedOnZ;
+        
         if(normalisedSpeed < maximumSpeedOnZ)
         {
             currentSpeedOnZ = normalisedSpeed;
@@ -171,9 +169,7 @@ public class Player : Singleton<Player>
         {
             maximumSpeedReached = true;
             currentSpeedOnZ = maximumSpeedOnZ;
-            Debug.Log("Maximum speed reached!");
         }
-
     }
 
     private void CalculateMileage()
@@ -182,7 +178,6 @@ public class Player : Singleton<Player>
         if(newMileage != MileageInUnits)
         {
             MileageInUnits = newMileage;
-           // InformationText.Instance.UpdateText(null, null, null,mileageInUnits.ToString());
         }
     }
 
@@ -240,7 +235,6 @@ public class Player : Singleton<Player>
     {
         if (isGrounded)
         {
-            // Input.GetKeyDown(KeyCode.Space) || MobileInput.Instance.SwipeUp ;
             bool toJump = (inputType == InputType.UP);
             if (toJump)
             {
@@ -283,7 +277,7 @@ public class Player : Singleton<Player>
     [SerializeField] private LayerMask interactablesLayerMask;
     [SerializeField] private float ClothingItemsInFrontCheckDistance = 5f;
     [SerializeField] private Transform ClothingItemsInFrontCheckOrigin;
-    private ClothingItem lastClothingItemAccommodatedFor;//Hacky...
+    private ClothingItem lastClothingItemAccommodatedFor;
 
     private void FixedUpdate()
     {
@@ -324,11 +318,6 @@ public class Player : Singleton<Player>
 
         Lives -= 1;
         washedItemsCombo = 0;
-        /*if (Lives <= 0)
-        {
-            Lose();
-            return;
-        }*/
     }
 
     private void GameOver()
@@ -344,7 +333,6 @@ public class Player : Singleton<Player>
 
         Lives += 1;
     }
-
 }
 
 public enum Lane

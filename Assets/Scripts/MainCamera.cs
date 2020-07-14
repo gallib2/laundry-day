@@ -5,16 +5,14 @@ using UnityEngine;
 public class MainCamera : MonoBehaviour
 {
     [SerializeField] private Transform target;
+    [SerializeField] private Transform anchor;
+    [SerializeField] private Animator anchorAnimator;
+    [SerializeField]  private float lerpSpeed = 2f;
 
     private float xPosition = 0f;
     private float yPosition = 0f;
     private CameraOption cameraOption;
-    // [SerializeField] private Vector3 initialPosition;
-    //[SerializeField] private Vector3 initialAngle;
-    [SerializeField] private Transform anchor;
-    [SerializeField] private Animator anchorAnimator;
     private bool followAnchor = true;
-    [SerializeField]  private float lerpSpeed = 2f;
 
     private void OnEnable()
     {
@@ -39,14 +37,10 @@ public class MainCamera : MonoBehaviour
         Camera.main.fieldOfView = cameraOption.FieldOfView;
         followAnchor = true;
         anchorAnimator.SetTrigger("Play");
-       // transform.position = initialPosition;
-       //transform.rotation = Quaternion.Euler(initialAngle);
-
     }
 
     public void Release()
     {
-        Debug.Log("Release()");
         followAnchor = false;
     }
 
@@ -71,11 +65,6 @@ public class MainCamera : MonoBehaviour
                         Vector3.Lerp(transform.position, newPosition, lerpSpeed * Time.deltaTime);
                     transform.rotation =
                         Quaternion.Lerp(transform.rotation, cameraOption.Angle, lerpSpeed * Time.deltaTime);
-
-                   // transform.rotation = Quaternion.RotateTowards(transform.rotation, cameraOption.Angle, 52f * Time.deltaTime);
-                    // transform.position = Vector3.Lerp(transform.position, newPosition, 0.77f * Time.deltaTime);
-                   // transform.position = Vector3.MoveTowards(transform.position, newPosition, 11f * Time.deltaTime);
-
                 }
                 else
                 {
