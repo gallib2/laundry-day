@@ -30,6 +30,7 @@ public class Doors : MonoBehaviour
             if (transform.position.z - Player.Instance.transform.position.z < doorOpeningTriggerDistance)
             {
                 IsOpen = true;
+                SoundSettings.Instance.PlaySound(SoundNames.DoorOpening);
             }
         }
 

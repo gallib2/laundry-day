@@ -59,11 +59,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 116967958654031864}
     m_Modifications:
-    - target: {fileID: -927199367670048503, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
-        type: 3}
-      propertyPath: m_Name
-      value: Door_2 (1)
-      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -124,6 +119,21 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 5e6697c7029354a729fc49eef5c327a6, type: 2}
+    - target: {fileID: -1504981713932161579, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 72e0587e4de8c2e4195a1716d5401fb3, type: 2}
+    - target: {fileID: -1504981713932161579, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
+        type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: e519435ff591c7543ab029cd67ccccb9, type: 2}
+    - target: {fileID: -927199367670048503, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
+        type: 3}
+      propertyPath: m_Name
+      value: Door_2 (1)
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a8a0c32d17c648ad8ce7b6fcc401524, type: 3}
 --- !u!4 &4964437333889495782 stripped
@@ -139,11 +149,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 116967958654031864}
     m_Modifications:
-    - target: {fileID: -927199367670048503, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
-        type: 3}
-      propertyPath: m_Name
-      value: Door_2
-      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -204,6 +209,21 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 5e6697c7029354a729fc49eef5c327a6, type: 2}
+    - target: {fileID: -1504981713932161579, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 72e0587e4de8c2e4195a1716d5401fb3, type: 2}
+    - target: {fileID: -1504981713932161579, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
+        type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: e519435ff591c7543ab029cd67ccccb9, type: 2}
+    - target: {fileID: -927199367670048503, guid: 3a8a0c32d17c648ad8ce7b6fcc401524,
+        type: 3}
+      propertyPath: m_Name
+      value: Door_2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a8a0c32d17c648ad8ce7b6fcc401524, type: 3}
 --- !u!4 &4964437333923790340 stripped

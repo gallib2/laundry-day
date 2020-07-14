@@ -6,6 +6,8 @@ public class InputManager : Singleton<InputManager>
 {
     private static bool useButtons;
     private static bool debuggingOnPC;
+    private static bool swapLeftAndRight;
+
     [SerializeField] private GameObject inputButtons;
 
     private void OnEnable()
@@ -22,7 +24,10 @@ public class InputManager : Singleton<InputManager>
     {
         useButtons = Settings.Instance.CurrentBlock.useInputButtons;
         inputButtons.SetActive(useButtons);//TODO: Might be more appropriate to move this to InputButtonsManager
+        swapLeftAndRight = Settings.Instance.ChosenCameraOption.SwapLeftAndRight;
+
         debuggingOnPC = (SystemInfo.deviceType != DeviceType.Handheld);
+
     }
 
     public static InputType GetInput()
@@ -66,6 +71,17 @@ public class InputManager : Singleton<InputManager>
 
         }
 
+        if (swapLeftAndRight)
+        {
+            if(inputType == InputType.RIGHT)
+            {
+                inputType = InputType.LEFT;
+            }
+            else if (inputType == InputType.LEFT)
+            {
+                inputType = InputType.RIGHT;
+            }
+        }
         return inputType;
     }
 }

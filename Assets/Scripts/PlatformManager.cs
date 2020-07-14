@@ -9,6 +9,7 @@ public class PlatformManager : Singleton<PlatformManager>
     private List<Platform> platforms;
     [SerializeField] private Doors doors;
     int materialsIndex = 0;
+    [SerializeField] private int platformsFromBehindAtInitialisation = 1;
 
    private float zPositionOffset = 0.0f;
     private const float Z_PLATFORM_SIZE = 100f;
@@ -30,7 +31,7 @@ public class PlatformManager : Singleton<PlatformManager>
 
     private void Initialise()
     {
-        zPositionOffset = 0f;
+        zPositionOffset = platformsFromBehindAtInitialisation * -Z_PLATFORM_SIZE;
 
         if (platforms == null)
         {

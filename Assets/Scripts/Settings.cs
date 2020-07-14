@@ -78,19 +78,13 @@ public class Settings : Singleton<Settings>
         CameraOptions[2].Offset = new Vector3(0.0f, 10f, -19f);
         CameraOptions[2].Angle = Quaternion.Euler(16, 0, 0);
 
-        CameraOptions[3].Name = "ThirdPersonFront";
-        CameraOptions[3].ToFollowOnX = false;
-        CameraOptions[3].FollowOnY = true;
-        CameraOptions[3].FieldOfView = 62f;
-        CameraOptions[3].Offset = new Vector3(0.0f, 4f, 20f);
-        CameraOptions[3].Angle = Quaternion.Euler(16, 180, 0);
+        CameraOptions[3] = new CameraOption
+           ("ThirdPersonFront", false, false, 62,
+           new Vector3(0.0f, 6f, 29.8f), Quaternion.Euler(17.5f, 180, 0),true);
 
-        CameraOptions[4].Name = "ThirdPersonYonatan";
-        CameraOptions[4].ToFollowOnX = false;
-        CameraOptions[4].FollowOnY = false;
-        CameraOptions[4].FieldOfView = 60f;
-        CameraOptions[4].Offset = new Vector3(0f, 4.9f, -12.69f);
-        CameraOptions[4].Angle = Quaternion.Euler(8.76f, 0, 0);
+        CameraOptions[4] = new CameraOption
+           ("ThirdPersonYonatan", false, false, 60,
+              new Vector3(0f, 4.9f, -12.69f), Quaternion.Euler(8.76f, 0, 0));
 
         CameraOptions[5] = new CameraOption
             ("SideView1", false, false, 62, 
@@ -98,6 +92,9 @@ public class Settings : Singleton<Settings>
         CameraOptions[6] = new CameraOption
             ("Sonic's Ass Game", false, false, 62,
             new Vector3(0f, 7.3f, -11.3f), Quaternion.Euler(18.5f, 0, 0));
+        CameraOptions[7] = new CameraOption
+          ("SideView2", false, false, 62,
+         new Vector3(-6.55f, 8.68f, -15.8f), Quaternion.Euler(13.4f, 18.5f, 0));
 
     }
 }
@@ -116,8 +113,10 @@ public struct CameraOption
 
     public Quaternion Angle { get; set; }
 
+    public bool SwapLeftAndRight { get; set; }
+
     public CameraOption 
-        (string name, bool followOnX, bool followOnY, float fieldOfView, Vector3 offset, Quaternion angle)
+        (string name, bool followOnX, bool followOnY, float fieldOfView, Vector3 offset, Quaternion angle, bool swapLeftAndRight=false)
     {
         Name = name;
         ToFollowOnX = followOnX;
@@ -125,6 +124,7 @@ public struct CameraOption
         FieldOfView = fieldOfView;
         Offset = offset;
         Angle = angle;
+        SwapLeftAndRight = swapLeftAndRight;
     }
 
 }

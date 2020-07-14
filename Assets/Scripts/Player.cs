@@ -140,9 +140,10 @@ public class Player : Singleton<Player>
 
     void Update()
     {
+
         if (!GameManager.GameIsPaused)
         {
-            if (!GameManager.GameIsOver)
+            if (!GameManager.GameIsOver && !GameManager.IntroIsPlaying)
             {
                 inputType = InputManager.GetInput();
                 timePassedSinceStart += Time.deltaTime;
@@ -189,7 +190,7 @@ public class Player : Singleton<Player>
     {
         Vector3 direction = new Vector3(0, 0, 1);
         Vector3 velocity = 
-            (!GameManager.GameIsOver ? direction * currentSpeedOnZ : Vector3.zero);
+            ((!GameManager.GameIsOver && !GameManager.IntroIsPlaying) ? direction * currentSpeedOnZ : Vector3.zero);
         bool isGrounded = controller.isGrounded;
 
         if (!forbidSwitchingLanesWhileAirborne || isGrounded)
@@ -312,14 +313,14 @@ public class Player : Singleton<Player>
         bubbleBurstParticleSystem.Play();
 
         WashedItems += 1;
-        SoundSettings.Instance.PlaySound(SoundNames.CollectGood);
+        SoundSettings.Instance.PlaySound(SoundNames.CollectCorrect);
         washedItemsCombo += 1;
     }
 
     private void LoseALife()
     {
         modelAnimator.SetTrigger("LoseALife");
-        SoundSettings.Instance.PlaySound(SoundNames.CollectBad);
+        SoundSettings.Instance.PlaySound(SoundNames.CollectWrong);
 
         Lives -= 1;
         washedItemsCombo = 0;
@@ -339,6 +340,8 @@ public class Player : Singleton<Player>
     {
         bubbleBurstParticleSystem.Play();
         modelAnimator.SetTrigger("ExtraLife");
+        SoundSettings.Instance.PlaySound(SoundNames.CollectLife);
+
         Lives += 1;
     }
 

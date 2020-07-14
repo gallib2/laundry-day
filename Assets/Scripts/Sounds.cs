@@ -26,7 +26,12 @@ public class SoundAudioClip
 	[SerializeField]
 	private AudioSource audioSource;
 
-	public SoundNames SoundName
+    [SerializeField] private bool loop;
+    [SerializeField] private bool isPausable;
+    [SerializeField][Range(0,1)] private float volume =1;
+
+
+    public SoundNames SoundName
 	{
 		get { return soundName; }
 		set { soundName = value; }
@@ -44,4 +49,20 @@ public class SoundAudioClip
 		set { audioSource = value; }
 	}
 
+    public bool Loop
+    {
+        get { return loop; }
+        set { loop = value; }
+    }
+
+    public bool IsPausable
+    {
+        get { return isPausable; }
+        set { isPausable = value; }
+    }
+
+    public float Volume
+    {
+        get { return volume; }
+    }
 }
