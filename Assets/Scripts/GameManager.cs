@@ -25,12 +25,7 @@ public class GameManager : Singleton<GameManager>
     {
         get; private set;
     }
-
-    private static ClothingType currentClothingTypeRequired;
-    public static ClothingType CurrentClothingTypeRequired
-    {
-        get { return currentClothingTypeRequired; }
-    }
+    public static ClothingType CurrentClothingTypeRequired { get; private set; }
     private static ClothingType nextClothingTypeRequired;
     public static event Action<ClothingType, ClothingType> OnClothingTypeRequiredChanged;
 
@@ -115,7 +110,7 @@ public class GameManager : Singleton<GameManager>
 
     private void InitialiseClothingTypeRequired()
     {
-        currentClothingTypeRequired = (ClothingType)
+        CurrentClothingTypeRequired = (ClothingType)
             UnityEngine.Random.Range(0, (int)ClothingType.LENGTH);
 
         bool newColthingTypeIsDifferentToOldOne = false;
@@ -123,7 +118,7 @@ public class GameManager : Singleton<GameManager>
         {
             ClothingType newClothingType = (ClothingType)
                UnityEngine.Random.Range(0, (int)ClothingType.LENGTH);
-            if (newClothingType != currentClothingTypeRequired)
+            if (newClothingType != CurrentClothingTypeRequired)
             {
                 nextClothingTypeRequired = newClothingType;
                 newColthingTypeIsDifferentToOldOne = true;
@@ -132,7 +127,7 @@ public class GameManager : Singleton<GameManager>
 
         DetermineNextClothingTypeChangeSchedule();
 
-        OnClothingTypeRequiredChanged(currentClothingTypeRequired, nextClothingTypeRequired);
+        OnClothingTypeRequiredChanged(CurrentClothingTypeRequired, nextClothingTypeRequired);
     }
 
     private void ChangeClothingTypeRequired()
@@ -144,15 +139,13 @@ public class GameManager : Singleton<GameManager>
                UnityEngine.Random.Range(0, (int)ClothingType.LENGTH);
             if(newClothingType != nextClothingTypeRequired)
             {
-                currentClothingTypeRequired = nextClothingTypeRequired;
+                CurrentClothingTypeRequired = nextClothingTypeRequired;
                 nextClothingTypeRequired = newClothingType;
                 newColthingTypeIsDifferentToOldOne = true;
             }
         }
         
-       /* Invoke("ChangeClothingTypeRequired",
-            Random.Range(minimumSecondsBetweenClothingTypeChanges, maximumSecondsBetweenClothingTypeChanges));*/
-        OnClothingTypeRequiredChanged(currentClothingTypeRequired, nextClothingTypeRequired);
+        OnClothingTypeRequiredChanged(CurrentClothingTypeRequired, nextClothingTypeRequired);
     }
 
     private void CheckPlayerLives(int lives)

@@ -16,7 +16,7 @@ public class InformationText : Singleton<InformationText>
     {
         if (clothingTypeRequired != null)
         {
-            clothingTypeRequiredText.text = "Clothing type required: " +clothingTypeRequired;
+            clothingTypeRequiredText.text = "Clothing type required: " + clothingTypeRequired;
         }
         if (lives != null)
         {
