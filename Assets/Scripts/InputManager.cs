@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class InputManager : Singleton<InputManager>
 {
+    [SerializeField] private GameObject inputButtons;
+
     private static bool useButtons;
     private static bool debuggingOnPC;
     private static bool swapLeftAndRight;
 
-    [SerializeField] private GameObject inputButtons;
 
     private void OnEnable()
     {
@@ -23,11 +24,10 @@ public class InputManager : Singleton<InputManager>
     private void Initialise()
     {
         useButtons = Settings.Instance.CurrentBlock.useInputButtons;
-        inputButtons.SetActive(useButtons);//TODO: Might be more appropriate to move this to InputButtonsManager
+        inputButtons.SetActive(useButtons);
         swapLeftAndRight = Settings.Instance.ChosenCameraOption.SwapLeftAndRight;
 
         debuggingOnPC = (SystemInfo.deviceType != DeviceType.Handheld);
-
     }
 
     public static InputType GetInput()
