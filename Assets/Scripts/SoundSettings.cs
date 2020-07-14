@@ -32,7 +32,7 @@ public class SoundSettings: Singleton<SoundSettings>
         {
             source.pitch = 1 + (Random.Range(-JumpPitchAlteration, JumpPitchAlteration));
         }
-        else if(soundName == SoundNames.CollectGood)
+        else if(soundName == SoundNames.CollectCorrect)
         {
             source.pitch = goodCollectionPitch;
         }
@@ -42,9 +42,10 @@ public class SoundSettings: Singleton<SoundSettings>
         }
 
         source.loop = chosenSound.Loop;
-
+        source.volume = chosenSound.Volume;
         source.clip = chosenSound.AudioClip;
         source.Play();
+
     }
 
     public void StopSound(SoundNames soundName)
@@ -52,6 +53,38 @@ public class SoundSettings: Singleton<SoundSettings>
         SoundAudioClip chosenSound = GetChosenSoundByName(soundName);
         //chosenSound.AudioSource.clip = chosenSound.AudioClip;
         chosenSound.AudioSource.Stop();
+    }
+
+    public static void StopAllSounds( )
+    {
+        for (int i = 0; i < Sounds.Instance.SoundsAudioClips.Length; i++)
+        {
+            SoundAudioClip soundAudioClip = Sounds.Instance.SoundsAudioClips[i];
+            if (soundAudioClip.IsPausable)
+            {
+                Sounds.Instance.SoundsAudioClips[i].AudioSource.Stop();
+            }
+        }
+    }
+
+    public static void PauseAllPausableSounds()
+    {
+        for (int i = 0; i < Sounds.Instance.SoundsAudioClips.Length; i++)
+        {
+            SoundAudioClip soundAudioClip = Sounds.Instance.SoundsAudioClips[i];
+            if (soundAudioClip.IsPausable)
+            {
+                Sounds.Instance.SoundsAudioClips[i].AudioSource.Pause();
+            }
+        }
+    }
+
+    public static void UnPauseAllPausableSounds()
+    {
+        for (int i = 0; i < Sounds.Instance.SoundsAudioClips.Length; i++)
+        {
+             Sounds.Instance.SoundsAudioClips[i].AudioSource.UnPause();
+        }
     }
 
     private static SoundAudioClip GetChosenSoundByName(SoundNames soundName)
@@ -72,8 +105,9 @@ public class SoundSettings: Singleton<SoundSettings>
 public enum SoundNames
 {
     Background,
-    CollectGood,
-    CollectBad,
+    CollectCorrect,
+    CollectWrong,
+    CollectLife,
     Lose,
     GainLife,
     Jump,

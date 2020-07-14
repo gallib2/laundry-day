@@ -73,7 +73,6 @@ public class GameManager : Singleton<GameManager>
 
     public void Restart()
     {
-
         OnRestart();
     }
 
@@ -81,6 +80,8 @@ public class GameManager : Singleton<GameManager>
     {
         Time.timeScale = 0;
         GameIsPaused = true;
+        SoundSettings.PauseAllPausableSounds();
+
         OnPause();
     }
 
@@ -88,6 +89,8 @@ public class GameManager : Singleton<GameManager>
     {
         Time.timeScale = 1;
         GameIsPaused = false;
+        SoundSettings.UnPauseAllPausableSounds();
+
         OnUnPause();
     }
 
@@ -95,9 +98,12 @@ public class GameManager : Singleton<GameManager>
     {
         GameIsOver = false;
         IntroIsPlaying = true;
+        warningOfClothingTypeChangeInProgress = false;
         introTimeLeft = introDuration;
         InitialiseClothingTypeRequired();
         PauseGame();
+
+        SoundSettings.StopAllSounds();
         SoundSettings.Instance.PlaySound(SoundNames.Background);
     }
 
@@ -160,6 +166,7 @@ public class GameManager : Singleton<GameManager>
     private void GameOver()
     {
         GameIsOver = true;
+        SoundSettings.Instance.StopSound(SoundNames.TickingClock);
         SoundSettings.Instance.StopSound(SoundNames.Background);
         SoundSettings.Instance.PlaySound(SoundNames.Lose);
         OnGameOver();
