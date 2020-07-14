@@ -14,7 +14,7 @@ public class MainCamera : MonoBehaviour
     [SerializeField] private Transform anchor;
     [SerializeField] private Animator anchorAnimator;
     private bool followAnchor = true;
-    private float lerpSpeed = 2f;
+    [SerializeField]  private float lerpSpeed = 2f;
 
     private void OnEnable()
     {

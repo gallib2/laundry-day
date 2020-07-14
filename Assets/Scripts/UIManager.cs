@@ -62,7 +62,7 @@ public class UIManager : Singleton<UIManager>
 
     private void UpdateMileageText(System.UInt32 mileage)
     {
-        mileageText.text = mileage.ToString();
+        mileageText.text = mileage.ToString()+"M";
     }
 
     private void UpdateLivesText(int lives)
