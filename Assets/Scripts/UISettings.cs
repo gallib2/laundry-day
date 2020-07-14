@@ -107,16 +107,17 @@ public class UISettings : MonoBehaviour
 
     public void UpdateTexts()
     {
-        timeToReachMaximumZSpeedText.text = timeToReachMaximumZSpeedSlider.value.ToString();
+        string format = "f1";
+        timeToReachMaximumZSpeedText.text = timeToReachMaximumZSpeedSlider.value.ToString(format);
 
-        textPlayerMinimumZSpeed.text = sliderPlayerMinimumZSpeed.value.ToString();
+        textPlayerMinimumZSpeed.text = sliderPlayerMinimumZSpeed.value.ToString(format);
 
-        textPlayerMaximumZSpeed.text = sliderPlayerMaximumZSpeed.value.ToString();
+        textPlayerMaximumZSpeed.text = sliderPlayerMaximumZSpeed.value.ToString(format);
 
-        playerXSpeedText.text = playerXSpeedSlider.value.ToString();
+        playerXSpeedText.text = playerXSpeedSlider.value.ToString(format);
 
-        textPlayerJumpForce.text = sliderPlayerJumpForce.value.ToString();
+        textPlayerJumpForce.text = sliderPlayerJumpForce.value.ToString(format);
 
-        livesAtStartText.text = livesAtStartSlider.value.ToString();
+        livesAtStartText.text = livesAtStartSlider.value.ToString(format);
     }
 }

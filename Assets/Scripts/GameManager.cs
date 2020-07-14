@@ -19,6 +19,13 @@ public class GameManager : Singleton<GameManager>
         get; private set;
     }
 
+    [SerializeField] private float introDuration = 3f;
+    private float introTimeLeft;
+    public static bool IntroIsPlaying
+    {
+        get; private set;
+    }
+
     private static ClothingType currentClothingTypeRequired;
     public static ClothingType CurrentClothingTypeRequired
     {
@@ -33,6 +40,7 @@ public class GameManager : Singleton<GameManager>
     public static event Action<float> OnClothingTypeChangeWarning;
 
     [SerializeField] private int warningOfClothingTypeChangeDuration;
+    private bool warningOfClothingTypeChangeInProgress;
     [SerializeField] private GameObject menu;
 
     private void OnEnable()
@@ -65,17 +73,20 @@ public class GameManager : Singleton<GameManager>
 
     public void Restart()
     {
+
         OnRestart();
     }
 
     public void PauseGame()
     {
+        Time.timeScale = 0;
         GameIsPaused = true;
         OnPause();
     }
 
     public void UnPauseGame()
     {
+        Time.timeScale = 1;
         GameIsPaused = false;
         OnUnPause();
     }
@@ -83,6 +94,8 @@ public class GameManager : Singleton<GameManager>
     private void Initialise()
     {
         GameIsOver = false;
+        IntroIsPlaying = true;
+        introTimeLeft = introDuration;
         InitialiseClothingTypeRequired();
         PauseGame();
         SoundSettings.Instance.PlaySound(SoundNames.Background);
@@ -154,19 +167,42 @@ public class GameManager : Singleton<GameManager>
 
     private void Update()
     {
-        if (!GameIsOver && !GameIsPaused)
+
+        if (!GameIsOver && !GameIsPaused )
         {
-            float time = Time.time;
-            float timeDifference = nextClothingTypeChangeScheduled - time;
-            if (timeDifference < warningOfClothingTypeChangeDuration)
+            if (IntroIsPlaying)
             {
-                OnClothingTypeChangeWarning(timeDifference);
+                introTimeLeft -= Time.deltaTime;
+                if (introTimeLeft <= 0)
+                {
+                    IntroIsPlaying = false;
+                }
             }
-            if (time >= nextClothingTypeChangeScheduled)
+            else
             {
-                ChangeClothingTypeRequired();
-                DetermineNextClothingTypeChangeSchedule();
+                float time = Time.time;
+                float timeDifference = nextClothingTypeChangeScheduled - time;
+                if (timeDifference < warningOfClothingTypeChangeDuration)
+                {
+                    if (!warningOfClothingTypeChangeInProgress)
+                    {
+                        warningOfClothingTypeChangeInProgress = true;
+                        SoundSettings.Instance.PlaySound(SoundNames.TickingClock);
+                    }
+                    OnClothingTypeChangeWarning(timeDifference);
+
+                }
+                if (time >= nextClothingTypeChangeScheduled)
+                {
+                    ChangeClothingTypeRequired();
+                    DetermineNextClothingTypeChangeSchedule();
+
+                    SoundSettings.Instance.StopSound(SoundNames.TickingClock);
+                    SoundSettings.Instance.PlaySound(SoundNames.ClothingTypeRequiredChange);
+                    warningOfClothingTypeChangeInProgress = false;
+                }
             }
+
         }
 
     }
