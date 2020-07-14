@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class InteractablesManager : Singleton<InteractablesManager>
 {
+    private const int RANDOM_Z_ANGLE_MIN = -6;
+    private const int RANDOM_Z_ANGLE_MAX = 6;
+
     [Serializable]
     private struct Chance
     {
@@ -232,7 +235,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 }
             }
             int numberOfClothingItemsToSpawn = 
-                UnityEngine.Random.Range(1, maxClothingItems + 1/*Added 1 cause Random.Range isn't inclusive*/);
+                UnityEngine.Random.Range(1, maxClothingItems + 1);
             interactablesToBeSpawned.AddRange
                  (LendRandomClothingItems(numberOfClothingItemsToSpawn));
             nextClothingItemSpawn = (UInt32)(playerMileage +
@@ -287,7 +290,8 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 Hanger hanger = LendAHanger();
 
                 hanger.gameObject.SetActive(true);
-                Vector2 laneXY = World.LanesXYs[1, 1];//HARDCODED
+                int midLane = (int)Lane.Mid;
+                Vector2 laneXY = World.LanesXYs[midLane, midLane];
                 hanger.transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
             }
 
@@ -318,7 +322,6 @@ public class InteractablesManager : Singleton<InteractablesManager>
             int index = clothingItemsPoolCount -1 -i;
             Interactable interactable = clothingItemsPool[index];
 
-            //TODO: change this:
             ClothingItem clothingItem = interactable as ClothingItem;
             ClothingType type = (ClothingType)UnityEngine.Random.Range(0, (int)ClothingType.LENGTH);
             Mesh mesh =null;
@@ -332,7 +335,8 @@ public class InteractablesManager : Singleton<InteractablesManager>
                     material = clothingTypeProperties[j].GetRandomMaterial();
                 }
             }
-            Quaternion angle = Quaternion.Euler(0, 0, UnityEngine.Random.Range(-6, 6));//TODO:DEHARDCODE
+
+            Quaternion angle = Quaternion.Euler(0, 0, UnityEngine.Random.Range(RANDOM_Z_ANGLE_MIN, RANDOM_Z_ANGLE_MAX));
             clothingItem.ChangeType(type, material, mesh, angle);
             lentItems[i] = interactable;
         }
