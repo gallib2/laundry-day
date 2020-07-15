@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class GameManager : Singleton<GameManager>
 {
     public static event Action OnGameOver;
@@ -15,6 +16,10 @@ public class GameManager : Singleton<GameManager>
         get; private set;
     }
     public static bool GameIsPaused
+    {
+        get; private set;
+    }
+    public static bool InBeginingScreen
     {
         get; private set;
     }
@@ -52,18 +57,13 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        Initialise();
+        InBeginingScreen = true;
     }
 
     public void BackToMenu()
     {
         GameIsPaused = true;
         menu.SetActive(true);
-    }
-
-    public void StartMenuClicked()
-    {
-        Restart();
     }
 
     public void Restart()
@@ -91,13 +91,13 @@ public class GameManager : Singleton<GameManager>
 
     private void Initialise()
     {
+        InBeginingScreen = false;
         GameIsOver = false;
         IntroIsPlaying = true;
         warningOfClothingTypeChangeInProgress = false;
         introTimeLeft = introDuration;
         InitialiseClothingTypeRequired();
-        PauseGame();
-
+        UnPauseGame();
         SoundSettings.StopAllSounds();
         SoundSettings.Instance.PlaySound(SoundNames.Background);
     }
@@ -168,7 +168,7 @@ public class GameManager : Singleton<GameManager>
     private void Update()
     {
 
-        if (!GameIsOver && !GameIsPaused )
+        if (!GameIsOver && !GameIsPaused &&!InBeginingScreen)
         {
             if (IntroIsPlaying)
             {
@@ -202,8 +202,6 @@ public class GameManager : Singleton<GameManager>
                     warningOfClothingTypeChangeInProgress = false;
                 }
             }
-
         }
-
     }
 }

@@ -11,6 +11,8 @@ public class World : Singleton<World>
     }
 
     public const float LANE_VERTICAL_SPACING = 3.5f;
+    public const float FLOOR_LEVEL = 0f;
+
 
     public static Vector2[,] LanesXYs { get; private set; }
     public const int NUMBER_OF_LANES = 3;

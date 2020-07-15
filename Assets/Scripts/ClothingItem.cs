@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum ClothingType : byte
 {
-    WHITES = 0, COLOURED = 1, DELICATES = 2, LENGTH = 3
+    WHITES = 0, COLOURS = 1, DELICATES = 2, LENGTH = 3
 }
 
 public class ClothingItem : Interactable
@@ -21,6 +21,7 @@ public class ClothingItem : Interactable
 
     public void ChangeType(ClothingType type, Material material, Mesh mesh, Quaternion angle)
     {
+       
         clothingType = type;
         meshFilter.mesh = mesh;
         meshRenderer.material = material;

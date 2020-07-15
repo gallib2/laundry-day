@@ -24,8 +24,8 @@ public class Player : Singleton<Player>
     [SerializeField] private float gravity = 1.0f;
     private float yVelocity = 0.0f;
     private float xVelocity = 0.0f;
-
     private int desiredLane = 1;
+    private float desiredLaneX;
 
     private UInt32 _mileageInUnits;
     public UInt32 MileageInUnits
@@ -101,9 +101,7 @@ public class Player : Singleton<Player>
 
     private void Initialise()
     {
-        controller.enabled = false;
-        transform.position = startingPosition;
-        controller.enabled = true;
+        TeleportTo(startingPosition);
 
         Settings.SettingsBlock settingsBlock =  Settings.Instance.CurrentBlock;
         minimumSpeedOnZ = settingsBlock.playerMinimumZSpeed;
@@ -131,6 +129,8 @@ public class Player : Singleton<Player>
         MileageInUnits = 0;
 
         desiredLane = 1;
+        desiredLaneX = World.LanesXYs[desiredLane, 0].x;
+
 
         modelAnimator.SetBool("GameIsOver", false);
     }
@@ -140,7 +140,7 @@ public class Player : Singleton<Player>
 
         if (!GameManager.GameIsPaused)
         {
-            if (!GameManager.GameIsOver && !GameManager.IntroIsPlaying)
+            if (!GameManager.GameIsOver && !GameManager.IntroIsPlaying && !GameManager.InBeginingScreen)
             {
                 inputType = InputManager.GetInput();
                 timePassedSinceStart += Time.deltaTime;
@@ -154,6 +154,13 @@ public class Player : Singleton<Player>
             CalculateMileage();
         }
 
+    }
+
+    private void TeleportTo(Vector3 location)
+    {
+        controller.enabled = false;
+        transform.position = location;
+        controller.enabled = true;
     }
 
     private void Accelerate()
@@ -185,12 +192,10 @@ public class Player : Singleton<Player>
     {
         Vector3 direction = new Vector3(0, 0, 1);
         Vector3 velocity = 
-            ((!GameManager.GameIsOver && !GameManager.IntroIsPlaying) ? direction * currentSpeedOnZ : Vector3.zero);
+           ((!GameManager.GameIsOver && !GameManager.IntroIsPlaying) ? direction * currentSpeedOnZ : Vector3.zero);
         bool isGrounded = controller.isGrounded;
-
         if (!forbidSwitchingLanesWhileAirborne || isGrounded)
         {
-
             if (inputType == InputType.LEFT)
             {
                 MoveLane(false);
@@ -200,17 +205,12 @@ public class Player : Singleton<Player>
                 MoveLane(true);
             }
         }
-        
-        Vector3 targetPosition = transform.position.z * Vector3.forward;
-        if (desiredLane == (int)Lane.Left)
-        {
-            targetPosition += Vector3.left * World.HorizontalLaneSpacing;
-        }
-        else if (desiredLane == (int)Lane.Right)
-        {
-            targetPosition += Vector3.right * World.HorizontalLaneSpacing;
-        }
 
+        Vector3 targetPosition = transform.position.z * Vector3.forward;
+        targetPosition.x = desiredLaneX;
+       // targetPosition += Vector3.right * desiredLaneX;
+        xVelocity = (targetPosition - transform.position).normalized.x * speedOnX;
+        
         xVelocity = (targetPosition - transform.position).normalized.x * speedOnX;
 
         CheckJump(isGrounded);
@@ -223,12 +223,14 @@ public class Player : Singleton<Player>
         velocity.x = xVelocity;
         velocity.y = yVelocity;
         controller.Move(velocity * Time.deltaTime);
+
     }
 
     private void MoveLane(bool goingRight)
     {
         desiredLane += goingRight ? 1 : -1;
-        desiredLane = Mathf.Clamp(desiredLane, (int)Lane.Left, (int)Lane.Right);
+        desiredLane = Mathf.Clamp(desiredLane, 0, World.NUMBER_OF_LANES - 1);
+        desiredLaneX = World.LanesXYs[desiredLane, 0].x;
     }
 
     private void CheckJump(bool isGrounded)
@@ -243,7 +245,6 @@ public class Player : Singleton<Player>
                 yVelocity = jumpForce;
             }
         }
-
     }
 
     private void OnTriggerEnter(Collider other)
@@ -274,7 +275,6 @@ public class Player : Singleton<Player>
         }
     }
 
-    [SerializeField] private LayerMask interactablesLayerMask;
     [SerializeField] private float ClothingItemsInFrontCheckDistance = 5f;
     [SerializeField] private Transform ClothingItemsInFrontCheckOrigin;
     private ClothingItem lastClothingItemAccommodatedFor;
@@ -335,9 +335,3 @@ public class Player : Singleton<Player>
     }
 }
 
-public enum Lane
-{
-    Left = 0,
-    Mid = 1,
-    Right = 2
-}

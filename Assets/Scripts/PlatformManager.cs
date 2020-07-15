@@ -75,7 +75,7 @@ public class PlatformManager : Singleton<PlatformManager>
         }
         Material material = platformMaterials[materialsIndex];
 
-        platform.SetMaterial(material);
+        platform.SetMaterials(material);
         zPositionOffset += Z_PLATFORM_SIZE;
     }
 }

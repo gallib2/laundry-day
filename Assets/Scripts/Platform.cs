@@ -5,11 +5,18 @@ using UnityEngine;
 public class Platform : MonoBehaviour
 {
     private const float RECYCLE_DISTANCE = 200f;
-    [SerializeField] private MeshRenderer meshRenderer;
+    [SerializeField] private MeshRenderer topMeshRenderer;
+    [SerializeField] private MeshRenderer  bottomMeshRenderer;
 
-    public void SetMaterial(Material material)
+
+    public void SetMaterials(Material topMaterial, Material bottomMaterial =null)
     {
-        meshRenderer.material = material;
+        topMeshRenderer.material = topMaterial;
+
+        if(bottomMaterial != null)
+        {
+            bottomMeshRenderer.material = bottomMaterial;
+        }
     }
     private void Update()
     {
