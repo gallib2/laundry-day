@@ -45,8 +45,10 @@ public class InteractablesManager : Singleton<InteractablesManager>
     [SerializeField] private UInt32 maximumUnitsBetweenClothingItemSpawns;
     [SerializeField] private UInt32 minimumUnitsBetweenExtraLifeItemSpawns;
     [SerializeField] private UInt32 maximumUnitsBetweenExtraLifeItemSpawns;
-    private UInt32 nextClothingItemSpawn;
-    private UInt32 nextExtraLifeItemSpawn;
+    [SerializeField] int  firstClothingItemSpawnMileage;
+    [SerializeField] int  firstExtraLifeItemSpawnMileage;
+    private int nextClothingItemSpawn;
+    private int nextExtraLifeItemSpawn;
 
     [SerializeField] private ClothingItemsGenerationPoint[] clothingItemsGenerationPoints;
     public static ClothingItemsGenerationPoint[] ClothingItemsGenerationPoints
@@ -88,6 +90,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
     }
 
     [SerializeField] private ClothingTypeProperties[] clothingTypeProperties;
+    private bool initialised = false;
 
     private void OnEnable()
     {
@@ -101,16 +104,23 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
     private void Start()
     {
+       // firstClothingItemSpawnMileage -= (int)spawnDistanceFromPlayer;
+       // firstExtraLifeItemSpawnMileage -= (int)spawnDistanceFromPlayer;
+
         Initialise();
     }
 
     private void Initialise()
     {
+        initialised = false;
         InitialisePools();
         InitialiseSpawnSpots();
         InitialiseInteractablesToBeSpawned();
-        nextClothingItemSpawn = 0;
-        nextExtraLifeItemSpawn = 0;
+
+        nextClothingItemSpawn = firstClothingItemSpawnMileage;
+        nextExtraLifeItemSpawn = firstExtraLifeItemSpawnMileage;
+        initialised = true;
+
     }
 
     private void InitialiseInteractablesToBeSpawned()
@@ -208,7 +218,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
     private void Update()
     {
-        if (!GameManager.GameIsOver && !GameManager.GameIsPaused)
+        if (!GameManager.GameIsOver && !GameManager.GameIsPaused && initialised)
         {
             ManageSpawning();
         }
@@ -216,13 +226,14 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
     private void ManageSpawning()
     {
-        UInt32 playerMileage = Player.Instance.MileageInUnits;
-        if (playerMileage >= nextClothingItemSpawn)
+        UInt32 mileagePlusSpawnDistance = (Player.Instance.MileageInUnits + (UInt32)spawnDistanceFromPlayer );
+        int nextClothingItemSpawnCopy = nextClothingItemSpawn;
+        if (mileagePlusSpawnDistance >= nextClothingItemSpawn)
         {
             int maxClothingItems = 0;
             for (int i = 0; i < clothingItemsGenerationPoints.Length; i++)
             {
-                if(playerMileage < clothingItemsGenerationPoints[i].mileage)
+                if(mileagePlusSpawnDistance < clothingItemsGenerationPoints[i].mileage)
                 {
                     break;
                 }
@@ -235,20 +246,21 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 UnityEngine.Random.Range(1, maxClothingItems + 1/*Added 1 cause Random.Range isn't inclusive*/);
             interactablesToBeSpawned.AddRange
                  (LendRandomClothingItems(numberOfClothingItemsToSpawn));
-            nextClothingItemSpawn = (UInt32)(playerMileage +
+            nextClothingItemSpawn = (int)(nextClothingItemSpawn +
                    UnityEngine.Random.Range((int)minimumUnitsBetweenClothingItemSpawns, (int)maximumUnitsBetweenClothingItemSpawns));
-        }
-        if (playerMileage >= nextExtraLifeItemSpawn)
-        {
-            interactablesToBeSpawned.Add(LendExtraLifeItem());
-            nextExtraLifeItemSpawn = (UInt32)(playerMileage +
-                  UnityEngine.Random.Range((int)minimumUnitsBetweenExtraLifeItemSpawns, (int)maximumUnitsBetweenExtraLifeItemSpawns));
+
+            if (mileagePlusSpawnDistance >= nextExtraLifeItemSpawn)
+            {
+                interactablesToBeSpawned.Add(LendExtraLifeItem());
+                nextExtraLifeItemSpawn = (int)(nextExtraLifeItemSpawn +
+                      UnityEngine.Random.Range((int)minimumUnitsBetweenExtraLifeItemSpawns, (int)maximumUnitsBetweenExtraLifeItemSpawns));
+            }
         }
 
         if(interactablesToBeSpawned.Count > 0)
         {
 
-            float positionZ = player.transform.position.z + spawnDistanceFromPlayer;
+            float positionZ = nextClothingItemSpawnCopy;
             bool hangerNeeded = false;
 
             for (int i = 0; i < interactablesToBeSpawned.Count; i++)

@@ -18,6 +18,9 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject[] objectsToDisappearOnGameOver;
 
+    [SerializeField] private GameObject[] objectsToHideDuringBeginingScreen;
+    [SerializeField] private GameObject[] objectsToShowDuringBeginingScreen;
+
 
     private void OnEnable()
     {
@@ -48,11 +51,26 @@ public class UIManager : Singleton<UIManager>
 
     private void Start()
     {
-        Initialise();
+        for (int i = 0; i < objectsToHideDuringBeginingScreen.Length; i++)
+        {
+            objectsToHideDuringBeginingScreen[i].SetActive(false);
+        }
+        for (int i = 0; i < objectsToShowDuringBeginingScreen.Length; i++)
+        {
+            objectsToShowDuringBeginingScreen[i].SetActive(true);
+        }
     }
 
     private void Initialise()
     {
+        for (int i = 0; i < objectsToHideDuringBeginingScreen.Length; i++)
+        {
+            objectsToHideDuringBeginingScreen[i].SetActive(true);
+        }
+        for (int i = 0; i < objectsToShowDuringBeginingScreen.Length; i++)
+        {
+            objectsToShowDuringBeginingScreen[i].SetActive(false);
+        }
         for (int i = 0; i < objectsToDisappearOnGameOver.Length; i++)
         {
             objectsToDisappearOnGameOver[i].SetActive(true);

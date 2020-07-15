@@ -16,7 +16,6 @@ public class Settings : Singleton<Settings>
         public int livesAtStart;
         public bool forbidSwitchingLanesWhileAirborne;
         public bool useInputButtons;
-
     }
 
     private SettingsBlock _currentBlock;
@@ -32,7 +31,7 @@ public class Settings : Singleton<Settings>
         get { return defaultBlock; }
     }
 
-    private const int CAMERA_OPTIONS_NUMBER = 8;
+    private const int CAMERA_OPTIONS_NUMBER = 7;
     public CameraOption[] CameraOptions { get; private set; }
 
 
@@ -79,21 +78,19 @@ public class Settings : Singleton<Settings>
         CameraOptions[2].Angle = Quaternion.Euler(16, 0, 0);
 
         CameraOptions[3] = new CameraOption
-           ("ThirdPersonFront", false, false, 62,
-           new Vector3(0.0f, 6f, 29.8f), Quaternion.Euler(17.5f, 180, 0),true);
+           ("Front View", false, false, 62,
+           new Vector3(0.0f, 6.5f, 29.8f), Quaternion.Euler(17.5f, 180, 0),true);
 
         CameraOptions[4] = new CameraOption
            ("ThirdPersonYonatan", false, false, 60,
               new Vector3(0f, 4.9f, -12.69f), Quaternion.Euler(8.76f, 0, 0));
 
         CameraOptions[5] = new CameraOption
-            ("SideView1", false, false, 62, 
-            new Vector3(-6.3f, 6.75f, -12.65f), Quaternion.Euler(10.55f, 21.55f, 0));
-        CameraOptions[6] = new CameraOption
             ("Sonic's Ass Game", false, false, 62,
             new Vector3(0f, 7.3f, -11.3f), Quaternion.Euler(18.5f, 0, 0));
-        CameraOptions[7] = new CameraOption
-          ("SideView2", false, false, 62,
+
+        CameraOptions[6] = new CameraOption
+          ("Side View", false, false, 62,
          new Vector3(-6.55f, 8.68f, -15.8f), Quaternion.Euler(13.4f, 18.5f, 0));
 
     }
