@@ -82,15 +82,14 @@ public class Player : Singleton<Player>
     private void OnEnable()
     {
         GameManager.OnRestart += Initialise;
-        GameManager.OnGameOver += GameOver;
+        GameManager.OnGameStateChanged += ConformToNewGameState;
 
     }
 
     private void OnDisable()
     {
         GameManager.OnRestart -= Initialise;
-        GameManager.OnGameOver -= GameOver;
-
+        GameManager.OnGameStateChanged -= ConformToNewGameState;
     }
 
     void Start()
@@ -114,7 +113,6 @@ public class Player : Singleton<Player>
         timeToReachMaximumZSpeed = settingsBlock.timeToReachMaximumZSpeed;
         maximumSpeedReached = false;
 
-
         int livesAtStart = settingsBlock.livesAtStart;
         if (livesAtStart <= 0)
         {
@@ -131,7 +129,6 @@ public class Player : Singleton<Player>
         desiredLane = 1;
         desiredLaneX = World.LanesXYs[desiredLane, 0].x;
 
-
         modelAnimator.SetBool("GameIsOver", false);
     }
 
@@ -140,7 +137,7 @@ public class Player : Singleton<Player>
 
         if (!GameManager.GameIsPaused)
         {
-            if (!GameManager.GameIsOver && !GameManager.IntroIsPlaying && !GameManager.InBeginingScreen)
+            if (GameManager.CurrentGameState == GameManager.GameState.InGame)
             {
                 inputType = InputManager.GetInput();
                 timePassedSinceStart += Time.deltaTime;
@@ -153,7 +150,6 @@ public class Player : Singleton<Player>
             Move();
             CalculateMileage();
         }
-
     }
 
     private void TeleportTo(Vector3 location)
@@ -192,7 +188,7 @@ public class Player : Singleton<Player>
     {
         Vector3 direction = new Vector3(0, 0, 1);
         Vector3 velocity = 
-           ((!GameManager.GameIsOver && !GameManager.IntroIsPlaying) ? direction * currentSpeedOnZ : Vector3.zero);
+           ((GameManager.CurrentGameState == GameManager.GameState.InGame) ? direction * currentSpeedOnZ : Vector3.zero);
         bool isGrounded = controller.isGrounded;
         if (!forbidSwitchingLanesWhileAirborne || isGrounded)
         {
@@ -208,7 +204,6 @@ public class Player : Singleton<Player>
 
         Vector3 targetPosition = transform.position.z * Vector3.forward;
         targetPosition.x = desiredLaneX;
-       // targetPosition += Vector3.right * desiredLaneX;
         xVelocity = (targetPosition - transform.position).normalized.x * speedOnX;
         
         xVelocity = (targetPosition - transform.position).normalized.x * speedOnX;
@@ -311,6 +306,15 @@ public class Player : Singleton<Player>
         washedItemsCombo += 1;
     }
 
+    private void GainALife()
+    {
+        bubbleBurstParticleSystem.Play();
+        modelAnimator.SetTrigger("ExtraLife");
+        SoundSettings.Instance.PlaySound(SoundNames.CollectLife);
+
+        Lives += 1;
+    }
+
     private void LoseALife()
     {
         modelAnimator.SetTrigger("LoseALife");
@@ -320,18 +324,13 @@ public class Player : Singleton<Player>
         washedItemsCombo = 0;
     }
 
-    private void GameOver()
+    private void ConformToNewGameState(GameManager.GameState gameState)
     {
-        modelAnimator.SetBool("GameIsOver",true);
+        if(gameState == GameManager.GameState.GameOver)
+        {
+            modelAnimator.SetBool("GameIsOver", true);
+        }
     }
 
-    private void GainALife()
-    {
-        bubbleBurstParticleSystem.Play();
-        modelAnimator.SetTrigger("ExtraLife");
-        SoundSettings.Instance.PlaySound(SoundNames.CollectLife);
-
-        Lives += 1;
-    }
 }
 

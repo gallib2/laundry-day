@@ -107,9 +107,6 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
     private void Start()
     {
-       // firstClothingItemSpawnMileage -= (int)spawnDistanceFromPlayer;
-       // firstExtraLifeItemSpawnMileage -= (int)spawnDistanceFromPlayer;
-
         Initialise();
     }
 
@@ -221,7 +218,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
     private void Update()
     {
-        if (!GameManager.GameIsOver && !GameManager.GameIsPaused && initialised)
+        if ( !GameManager.GameIsPaused && initialised)
         {
             ManageSpawning();
         }
@@ -302,7 +299,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 Hanger hanger = LendAHanger();
 
                 hanger.gameObject.SetActive(true);
-                int midLane = (int)Lane.Mid;
+                int midLane = World.NUMBER_OF_LANES/2;
                 Vector2 laneXY = World.LanesXYs[midLane, midLane];
                 hanger.transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
             }

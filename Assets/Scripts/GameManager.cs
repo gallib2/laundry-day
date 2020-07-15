@@ -6,30 +6,37 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
-    public static event Action OnGameOver;
+    public static event Action<GameState> OnGameStateChanged;
     public static event Action OnRestart;
     public static event Action OnPause;
     public static event Action OnUnPause;
 
-    public static bool GameIsOver
+    public enum GameState
     {
-        get; private set;
+        BeginingScreen, Intro, InGame, GameOver
+    }
+
+    private static GameState currentGameState;
+    public static GameState CurrentGameState
+    {
+        get
+        {
+            return currentGameState;
+        }
+        private set
+        {
+            currentGameState =value;
+            OnGameStateChanged(currentGameState);
+        }
     }
     public static bool GameIsPaused
-    {
-        get; private set;
-    }
-    public static bool InBeginingScreen
     {
         get; private set;
     }
 
     [SerializeField] private float introDuration = 3f;
     private float introTimeLeft;
-    public static bool IntroIsPlaying
-    {
-        get; private set;
-    }
+
     public static ClothingType CurrentClothingTypeRequired { get; private set; }
     private static ClothingType nextClothingTypeRequired;
     public static event Action<ClothingType, ClothingType> OnClothingTypeRequiredChanged;
@@ -57,7 +64,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        InBeginingScreen = true;
+        CurrentGameState = GameState.BeginingScreen;
     }
 
     public void BackToMenu()
@@ -91,9 +98,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Initialise()
     {
-        InBeginingScreen = false;
-        GameIsOver = false;
-        IntroIsPlaying = true;
+        CurrentGameState = GameState.Intro;
         warningOfClothingTypeChangeInProgress = false;
         introTimeLeft = introDuration;
         InitialiseClothingTypeRequired();
@@ -158,27 +163,27 @@ public class GameManager : Singleton<GameManager>
 
     private void GameOver()
     {
-        GameIsOver = true;
+        CurrentGameState = GameState.GameOver;
         SoundSettings.Instance.StopSound(SoundNames.TickingClock);
         SoundSettings.Instance.StopSound(SoundNames.Background);
         SoundSettings.Instance.PlaySound(SoundNames.Lose);
-        OnGameOver();
     }
 
     private void Update()
     {
 
-        if (!GameIsOver && !GameIsPaused &&!InBeginingScreen)
+        if (!GameIsPaused)
         {
-            if (IntroIsPlaying)
+            if(CurrentGameState == GameState.Intro)
             {
-                introTimeLeft -= Time.deltaTime;
-                if (introTimeLeft <= 0)
-                {
-                    IntroIsPlaying = false;
-                }
+                 introTimeLeft -= Time.deltaTime;
+                 if (introTimeLeft <= 0)
+                 {
+                    CurrentGameState = GameState.InGame;
+                 }
+                
             }
-            else
+            else if(CurrentGameState == GameState.InGame)
             {
                 float time = Time.time;
                 float timeDifference = nextClothingTypeChangeScheduled - time;
