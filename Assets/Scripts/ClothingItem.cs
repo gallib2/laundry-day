@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum ClothingType : byte
 {
-    WHITES = 0, COLOURS = 1, DELICATES = 2, LENGTH = 3
+    WHITES = 0, COLORS = 1, DELICATES = 2, LENGTH = 3
 }
 
 public class ClothingItem : Interactable
