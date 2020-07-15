@@ -31,7 +31,7 @@ public class Settings : Singleton<Settings>
         get { return defaultBlock; }
     }
 
-    private const int CAMERA_OPTIONS_NUMBER = 7;
+    private const int CAMERA_OPTIONS_NUMBER = 4;
     public CameraOption[] CameraOptions { get; private set; }
 
 
@@ -57,41 +57,23 @@ public class Settings : Singleton<Settings>
     private void SetCameraOptions()
 	{
 		CameraOptions = new CameraOption[CAMERA_OPTIONS_NUMBER];
+        int i = 0;
 
-		CameraOptions[0].Name = "Option x";
-		CameraOptions[0].ToFollowOnX = false;
-        CameraOptions[0].FollowOnY = true;
-        CameraOptions[0].FieldOfView = 65.0f;
-		CameraOptions[0].Offset = new Vector3(0.0f, 5.0f, -20f);
+        CameraOptions[i++] = new CameraOption
+           ("Back View", false, false, 62,
+           new Vector3(0f, 7.3f, -11.3f), Quaternion.Euler(18.5f, 0, 0));
 
-		CameraOptions[1].Name = "Follow Player";
-		CameraOptions[1].ToFollowOnX = true;
-        CameraOptions[1].FollowOnY = true;
-        CameraOptions[1].FieldOfView = 70.0f;
-		CameraOptions[1].Offset = new Vector3(0.0f, 2.5f, -18f);
+        CameraOptions[i++] = new CameraOption
+            ("Back Top View", false, false, 62,
+            new Vector3(0.0f, 10f, -19f), Quaternion.Euler(16, 0, 0));
 
-        CameraOptions[2].Name = "ThirdPerson";
-        CameraOptions[2].ToFollowOnX = false;
-        CameraOptions[2].FollowOnY = true;
-        CameraOptions[2].FieldOfView = 62f;
-        CameraOptions[2].Offset = new Vector3(0.0f, 10f, -19f);
-        CameraOptions[2].Angle = Quaternion.Euler(16, 0, 0);
+        CameraOptions[i++] = new CameraOption
+            ("Side View", false, false, 62,
+            new Vector3(-6.55f, 8.68f, -15.8f), Quaternion.Euler(13.4f, 18.5f, 0));
 
-        CameraOptions[3] = new CameraOption
-           ("Front View", false, false, 62,
-           new Vector3(0.0f, 6.5f, 29.8f), Quaternion.Euler(17.5f, 180, 0),true);
-
-        CameraOptions[4] = new CameraOption
-           ("ThirdPersonYonatan", false, false, 60,
-              new Vector3(0f, 4.9f, -12.69f), Quaternion.Euler(8.76f, 0, 0));
-
-        CameraOptions[5] = new CameraOption
-            ("Sonic's Ass Game", false, false, 62,
-            new Vector3(0f, 7.3f, -11.3f), Quaternion.Euler(18.5f, 0, 0));
-
-        CameraOptions[6] = new CameraOption
-          ("Side View", false, false, 62,
-         new Vector3(-6.55f, 8.68f, -15.8f), Quaternion.Euler(13.4f, 18.5f, 0));
+        CameraOptions[i++] = new CameraOption
+            ("Front View", false, false, 62,
+            new Vector3(0.0f, 6.5f, 29.8f), Quaternion.Euler(17.5f, 180, 0), true);
 
     }
 }

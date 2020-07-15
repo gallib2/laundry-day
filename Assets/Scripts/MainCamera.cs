@@ -34,22 +34,18 @@ public class MainCamera : MonoBehaviour
 
     private void ConformToNewGameState(GameManager.GameState gameState)
     {
-        if(gameState == GameManager.GameState.InGame)
+        if(gameState == GameManager.GameState.InGame || gameState == GameManager.GameState.GameOver)
         {
             Camera.main.nearClipPlane = IN_GAME_CLIPPING;
         }
         else
         {
+            followAnchor = true;
             Camera.main.nearClipPlane = CINEMATIC_CLIPPING;
-            if(gameState == GameManager.GameState.BeginingScreen)
+
+            if (gameState == GameManager.GameState.Intro)
             {
-                transform.position = anchor.position;
-                transform.rotation = anchor.rotation;
-            }
-            else if (gameState == GameManager.GameState.Intro)
-            {
-                followAnchor = true;
-                anchorAnimator.SetTrigger("Play");
+                anchorAnimator.SetTrigger("PlayIntro");
             }
         }
     }
@@ -66,22 +62,23 @@ public class MainCamera : MonoBehaviour
             switch (GameManager.CurrentGameState)
             {
                 case GameManager.GameState.InGame:
-                    InPlayMove();
+                    InGameMove();
                     break;
                 case GameManager.GameState.Intro:
-                    IntroMove();
+                case GameManager.GameState.BeginingScreen:
+                    PreInGameMove();
                     break;
             }
         }
     }
 
-    private void InPlayMove()
+    private void InGameMove()
     {
         transform.rotation = cameraOption.Angle;
         transform.position = GetTargetPosition();
     }
 
-    private void IntroMove()
+    private void PreInGameMove()
     {
         if (followAnchor)
         {
