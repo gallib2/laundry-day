@@ -299,7 +299,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 Hanger hanger = LendAHanger();
 
                 hanger.gameObject.SetActive(true);
-                int midLane = (int)Lane.Mid;
+                int midLane = World.NUMBER_OF_LANES/2;
                 Vector2 laneXY = World.LanesXYs[midLane, midLane];
                 hanger.transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
             }
