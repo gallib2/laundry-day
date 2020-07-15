@@ -104,9 +104,6 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
     private void Start()
     {
-       // firstClothingItemSpawnMileage -= (int)spawnDistanceFromPlayer;
-       // firstExtraLifeItemSpawnMileage -= (int)spawnDistanceFromPlayer;
-
         Initialise();
     }
 
@@ -218,7 +215,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
     private void Update()
     {
-        if (!GameManager.GameIsOver && !GameManager.GameIsPaused && initialised)
+        if ( !GameManager.GameIsPaused && initialised)
         {
             ManageSpawning();
         }

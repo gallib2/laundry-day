@@ -29,8 +29,7 @@ public class UIManager : Singleton<UIManager>
         Player.OnWashedItemsChanged += UpdateWashedItemsText;
         GameManager.OnClothingTypeRequiredChanged += UpdateClothingTypeRequired;
         GameManager.OnClothingTypeChangeWarning += UpdateClothingTypeChangeWarningText;
-        GameManager.OnGameOver += ShowGameOverPopUp;
-        GameManager.OnRestart += Initialise;
+        GameManager.OnGameStateChanged += ConformToNewGameState;
         GameManager.OnPause += ShowPauseMenu;
         GameManager.OnUnPause += HidePauseMenu;
 
@@ -43,39 +42,25 @@ public class UIManager : Singleton<UIManager>
         Player.OnWashedItemsChanged -= UpdateWashedItemsText;
         GameManager.OnClothingTypeRequiredChanged -= UpdateClothingTypeRequired;
         GameManager.OnClothingTypeChangeWarning -= UpdateClothingTypeChangeWarningText;
-        GameManager.OnGameOver -= ShowGameOverPopUp;
-        GameManager.OnRestart -= Initialise;
+        GameManager.OnGameStateChanged -= ConformToNewGameState;
         GameManager.OnPause -= ShowPauseMenu;
         GameManager.OnUnPause -= HidePauseMenu;
     }
 
-    private void Start()
+    private void ConformToNewGameState(GameManager.GameState gameState)
     {
-        for (int i = 0; i < objectsToHideDuringBeginingScreen.Length; i++)
+        switch (gameState)
         {
-            objectsToHideDuringBeginingScreen[i].SetActive(false);
+            case GameManager.GameState.GameOver:
+                ShowGameOverPopUp();
+                break;
+            case GameManager.GameState.BeginingScreen:
+                ShowBeginingUI();
+                break;
+            case GameManager.GameState.Intro:
+                ShowInGameUI();
+                break;
         }
-        for (int i = 0; i < objectsToShowDuringBeginingScreen.Length; i++)
-        {
-            objectsToShowDuringBeginingScreen[i].SetActive(true);
-        }
-    }
-
-    private void Initialise()
-    {
-        for (int i = 0; i < objectsToHideDuringBeginingScreen.Length; i++)
-        {
-            objectsToHideDuringBeginingScreen[i].SetActive(true);
-        }
-        for (int i = 0; i < objectsToShowDuringBeginingScreen.Length; i++)
-        {
-            objectsToShowDuringBeginingScreen[i].SetActive(false);
-        }
-        for (int i = 0; i < objectsToDisappearOnGameOver.Length; i++)
-        {
-            objectsToDisappearOnGameOver[i].SetActive(true);
-        }
-        gameOverPopUp.SetActive(false);
     }
 
     private void UpdateMileageText(System.UInt32 mileage)
@@ -111,6 +96,35 @@ public class UIManager : Singleton<UIManager>
     private void UpdateClothingTypeChangeWarningText(float time)
     {
         clothingTypeChangeWarningText.text = time.ToString("f1");
+    }
+
+    private void ShowBeginingUI()
+    {
+        for (int i = 0; i < objectsToHideDuringBeginingScreen.Length; i++)
+        {
+            objectsToHideDuringBeginingScreen[i].SetActive(false);
+        }
+        for (int i = 0; i < objectsToShowDuringBeginingScreen.Length; i++)
+        {
+            objectsToShowDuringBeginingScreen[i].SetActive(true);
+        }
+    }
+
+    private void ShowInGameUI()
+    {
+        for (int i = 0; i < objectsToHideDuringBeginingScreen.Length; i++)
+        {
+            objectsToHideDuringBeginingScreen[i].SetActive(true);
+        }
+        for (int i = 0; i < objectsToShowDuringBeginingScreen.Length; i++)
+        {
+            objectsToShowDuringBeginingScreen[i].SetActive(false);
+        }
+        for (int i = 0; i < objectsToDisappearOnGameOver.Length; i++)
+        {
+            objectsToDisappearOnGameOver[i].SetActive(true);
+        }
+        gameOverPopUp.SetActive(false);
     }
 
     private void ShowGameOverPopUp()
