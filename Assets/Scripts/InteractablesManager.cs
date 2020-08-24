@@ -285,7 +285,11 @@ public class InteractablesManager : Singleton<InteractablesManager>
                     }
                     if (spawnSpots[x, y] == SpawnSpot.FREE)
                     {
-                        freeSpotFound = true;
+                        if(!(y>0&& interactablesToBeSpawned[i] is ExtraLifeItem))
+                        {
+                            freeSpotFound = true;
+
+                        }
                     }
                 }
                 spawnSpots[x, y] = SpawnSpot.OCCUPIED;

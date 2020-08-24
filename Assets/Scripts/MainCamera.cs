@@ -72,10 +72,29 @@ public class MainCamera : MonoBehaviour
         }
     }
 
+    private bool followTarget = true;
+    float followTargetLerpT = 1;
+   // float followTargetReductionPerSecond = 0.3f;
     private void InGameMove()
     {
-        transform.rotation = cameraOption.Angle;
-        transform.position = GetTargetPosition();
+        if (followTarget)
+        {
+            transform.rotation = cameraOption.Angle;
+            transform.position = GetTargetPosition();
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                followTarget = false;
+            }
+        }
+       else if(followTargetLerpT>0)
+        {
+            Vector3 currentPosition = transform.position;
+            transform.position = Vector3.Lerp(currentPosition, GetTargetPosition(), followTargetLerpT);
+            // followTargetLerpT -= (followTargetReductionPerSecond * Time.deltaTime);
+             followTargetLerpT -= ((followTargetLerpT*6) * Time.deltaTime);
+
+        }
+
     }
 
     private void PreInGameMove()
