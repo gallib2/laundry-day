@@ -37,6 +37,7 @@ public class Player : Singleton<Player>
             OnMileageChanged(_mileageInUnits);
         }
     }
+
     public static event Action<UInt32> OnMileageChanged;
 
     private InputType inputType;
@@ -44,17 +45,7 @@ public class Player : Singleton<Player>
     #endregion
 
     #region Washing Related:
-    [Header("Washing Related:")]
-    private int _lives;
-    private int Lives
-    {
-        get { return _lives; }
-        set
-        {
-            _lives = value;
-            OnLivesChanged(_lives);
-        }
-    }
+   
 
     public static event Action<int> OnLivesChanged;   
     private UInt32 _washedItems;
@@ -70,6 +61,8 @@ public class Player : Singleton<Player>
     private UInt32 washedItemsCombo;
 
     public static event Action<UInt32, UInt32> OnWashedItemsChanged;
+
+    private Stack<ClothingItemPhysicalProperties> collectedClothingItemsPhysicalProperties;
     #endregion
 
     #region Graphics:
@@ -113,13 +106,6 @@ public class Player : Singleton<Player>
         timeToReachMaximumZSpeed = settingsBlock.timeToReachMaximumZSpeed;
         maximumSpeedReached = false;
 
-        int livesAtStart = settingsBlock.livesAtStart;
-        if (livesAtStart <= 0)
-        {
-            Debug.LogWarning("Illegal lives At Start Value.");
-            livesAtStart = 666;
-        }
-        Lives = livesAtStart;
 
         WashedItems = 0;
         washedItemsCombo = 0;
@@ -130,6 +116,8 @@ public class Player : Singleton<Player>
         desiredLaneX = World.LanesXYs[desiredLane, 0].x;
 
         modelAnimator.SetBool("GameIsOver", false);
+
+        collectedClothingItemsPhysicalProperties = new Stack<ClothingItemPhysicalProperties>();
     }
 
     void Update()
@@ -253,17 +241,17 @@ public class Player : Singleton<Player>
                 ClothingType clothingType = clothingItem.ClothingType;
                 if(clothingType == GameManager.CurrentClothingTypeRequired)
                 {
-                    WashItem();
+                    WashItem(clothingItem);
                 }
                 else
                 {
-                    LoseALife();
+                    CollectWrongItem();
                 }
 
             }
             else if (interactable is ExtraLifeItem)
             {
-                GainALife();
+                CollectCoin();
             }
 
             interactable.Interact();
@@ -297,31 +285,40 @@ public class Player : Singleton<Player>
         }
     }
 
-    private void WashItem()
+    private void WashItem(ClothingItem clothingItem)
     {
         bubbleBurstParticleSystem.Play();
 
         WashedItems += 1;
         SoundSettings.Instance.PlaySound(SoundNames.CollectCorrect);
         washedItemsCombo += 1;
+
+        collectedClothingItemsPhysicalProperties.Push(new ClothingItemPhysicalProperties(clothingItem.Mesh, clothingItem.Material));
     }
 
-    private void GainALife()
+    private void CollectCoin()
     {
         bubbleBurstParticleSystem.Play();
         modelAnimator.SetTrigger("ExtraLife");
         SoundSettings.Instance.PlaySound(SoundNames.CollectLife);
 
-        Lives += 1;
     }
 
-    private void LoseALife()
+    [SerializeField] private LostClothingItem lostClothingItemPreFab;
+    [SerializeField] private Transform lostClothesSpawnPoint;
+
+    private void CollectWrongItem()
     {
         modelAnimator.SetTrigger("LoseALife");
         SoundSettings.Instance.PlaySound(SoundNames.CollectWrong);
 
-        Lives -= 1;
         washedItemsCombo = 0;
+        if (collectedClothingItemsPhysicalProperties.Count > 0)
+        {
+            LostClothingItem lostClothingItem = Instantiate(lostClothingItemPreFab, lostClothesSpawnPoint.position, Quaternion.identity);
+            lostClothingItem.Spawn(collectedClothingItemsPhysicalProperties.Pop());
+        }
+
     }
 
     private void ConformToNewGameState(GameManager.GameState gameState)

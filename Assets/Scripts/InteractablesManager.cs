@@ -33,7 +33,7 @@ public class InteractablesManager : Singleton<InteractablesManager>
     private static List<Hanger> lentHangers;
 
     private const int INITIAL_CLOTHING_ITEMS_POOL_SIZE = 32;
-    private const int INITIAL_EXTRA_LIFE_ITEMS_POOL_SIZE = 4;
+    private const int INITIAL_EXTRA_LIFE_ITEMS_POOL_SIZE = 12;
     private const int CLOTHING_ITEMS_POOL_EMERGENCY_BOOST = 16;
     private const int EXTRA_LIFE_ITEMS_POOL_EMERGENCY_BOOST = 2;
     private const int INITIAL_HANGERS_POOL_SIZE = 12;

@@ -120,9 +120,14 @@ public class UIManager : Singleton<UIManager>
         {
             objectsToShowDuringBeginingScreen[i].SetActive(false);
         }
+       
         for (int i = 0; i < objectsToDisappearOnGameOver.Length; i++)
         {
-            objectsToDisappearOnGameOver[i].SetActive(true);
+            if (objectsToDisappearOnGameOver[i] != null)
+            {
+                objectsToDisappearOnGameOver[i].SetActive(true);
+
+            }
         }
         gameOverPopUp.SetActive(false);
     }

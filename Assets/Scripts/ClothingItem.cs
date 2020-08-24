@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum ClothingType : byte
 {
-    WHITES = 0, COLORS = 1, DELICATES = 2, LENGTH = 3
+    WHITES = 0, COLORS = 1, /*DELICATES = 2,*/ LENGTH = 2
 }
 
 public class ClothingItem : Interactable
@@ -12,6 +12,14 @@ public class ClothingItem : Interactable
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private MeshFilter meshFilter;
     [SerializeField] private Transform graphicsParent;
+    public Material Material
+    {
+        get { return meshRenderer.material; }
+    }
+    public Mesh Mesh
+    {
+        get { return meshFilter.mesh; }
+    }
 
     [SerializeField] private ClothingType clothingType;
     public ClothingType ClothingType
@@ -27,4 +35,6 @@ public class ClothingItem : Interactable
         meshRenderer.material = material;
         graphicsParent.rotation = angle;
     }
+
+
 }

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class GameManager : Singleton<GameManager>
 {
     public static event Action<GameState> OnGameStateChanged;
@@ -37,13 +36,12 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private float introDuration = 3f;
     private float introTimeLeft;
 
-    public static ClothingType CurrentClothingTypeRequired { get; private set; }
-    private static ClothingType nextClothingTypeRequired;
+    [SerializeField] private ClothingType clothingTypeRequired;
+    public static ClothingType CurrentClothingTypeRequired { get { return Instance.clothingTypeRequired; } }
     public static event Action<ClothingType, ClothingType> OnClothingTypeRequiredChanged;
 
     [SerializeField] private float minimumSecondsBetweenClothingTypeChanges;
     [SerializeField] private float maximumSecondsBetweenClothingTypeChanges;
-    private float nextClothingTypeChangeScheduled;
     public static event Action<float> OnClothingTypeChangeWarning;
 
     [SerializeField] private int warningOfClothingTypeChangeDuration;
@@ -101,56 +99,9 @@ public class GameManager : Singleton<GameManager>
         CurrentGameState = GameState.Intro;
         warningOfClothingTypeChangeInProgress = false;
         introTimeLeft = introDuration;
-        InitialiseClothingTypeRequired();
         UnPauseGame();
         SoundSettings.StopAllSounds();
         SoundSettings.Instance.PlaySound(SoundNames.Background);
-    }
-
-    private void DetermineNextClothingTypeChangeSchedule()
-    {
-        nextClothingTypeChangeScheduled = Time.time + 
-            (UnityEngine.Random.Range(minimumSecondsBetweenClothingTypeChanges, maximumSecondsBetweenClothingTypeChanges));
-    }
-
-    private void InitialiseClothingTypeRequired()
-    {
-        CurrentClothingTypeRequired = (ClothingType)
-            UnityEngine.Random.Range(0, (int)ClothingType.LENGTH);
-
-        bool newColthingTypeIsDifferentToOldOne = false;
-        while (!newColthingTypeIsDifferentToOldOne)
-        {
-            ClothingType newClothingType = (ClothingType)
-               UnityEngine.Random.Range(0, (int)ClothingType.LENGTH);
-            if (newClothingType != CurrentClothingTypeRequired)
-            {
-                nextClothingTypeRequired = newClothingType;
-                newColthingTypeIsDifferentToOldOne = true;
-            }
-        }
-
-        DetermineNextClothingTypeChangeSchedule();
-
-        OnClothingTypeRequiredChanged(CurrentClothingTypeRequired, nextClothingTypeRequired);
-    }
-
-    private void ChangeClothingTypeRequired()
-    {
-        bool newColthingTypeIsDifferentToOldOne = false;
-        while (!newColthingTypeIsDifferentToOldOne)
-        {
-            ClothingType newClothingType = (ClothingType)
-               UnityEngine.Random.Range(0, (int)ClothingType.LENGTH);
-            if(newClothingType != nextClothingTypeRequired)
-            {
-                CurrentClothingTypeRequired = nextClothingTypeRequired;
-                nextClothingTypeRequired = newClothingType;
-                newColthingTypeIsDifferentToOldOne = true;
-            }
-        }
-        
-        OnClothingTypeRequiredChanged(CurrentClothingTypeRequired, nextClothingTypeRequired);
     }
 
     private void CheckPlayerLives(int lives)
@@ -185,27 +136,8 @@ public class GameManager : Singleton<GameManager>
             }
             else if(CurrentGameState == GameState.InGame)
             {
-                float time = Time.time;
-                float timeDifference = nextClothingTypeChangeScheduled - time;
-                if (timeDifference < warningOfClothingTypeChangeDuration)
-                {
-                    if (!warningOfClothingTypeChangeInProgress)
-                    {
-                        warningOfClothingTypeChangeInProgress = true;
-                        SoundSettings.Instance.PlaySound(SoundNames.TickingClock);
-                    }
-                    OnClothingTypeChangeWarning(timeDifference);
 
-                }
-                if (time >= nextClothingTypeChangeScheduled)
-                {
-                    ChangeClothingTypeRequired();
-                    DetermineNextClothingTypeChangeSchedule();
-
-                    SoundSettings.Instance.StopSound(SoundNames.TickingClock);
-                    SoundSettings.Instance.PlaySound(SoundNames.ClothingTypeRequiredChange);
-                    warningOfClothingTypeChangeInProgress = false;
-                }
+                
             }
         }
     }
