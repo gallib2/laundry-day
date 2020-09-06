@@ -249,8 +249,9 @@ public class InteractablesManager : Singleton<InteractablesManager>
             nextClothingItemSpawn = (int)(nextClothingItemSpawn +
                    UnityEngine.Random.Range((int)minimumUnitsBetweenClothingItemSpawns, (int)maximumUnitsBetweenClothingItemSpawns));
 
-            if (mileagePlusSpawnDistance >= nextExtraLifeItemSpawn)
+            if ( nextClothingItemSpawnCopy >= nextExtraLifeItemSpawn)
             {
+                Debug.Log("nextExtraLifeItemSpawn" + nextExtraLifeItemSpawn);
                 interactablesToBeSpawned.Add(LendExtraLifeItem());
                 nextExtraLifeItemSpawn = (int)(nextExtraLifeItemSpawn +
                       UnityEngine.Random.Range((int)minimumUnitsBetweenExtraLifeItemSpawns, (int)maximumUnitsBetweenExtraLifeItemSpawns));
@@ -268,7 +269,8 @@ public class InteractablesManager : Singleton<InteractablesManager>
                 bool freeSpotFound = false;
                 int x = 0;
                 int y = 0;
-                while (!freeSpotFound)
+                int triesLeft = 42;
+                while (!freeSpotFound&& triesLeft>0)
                 {
                     x = UnityEngine.Random.Range(0, spawnSpots.GetLength(0));
                     y = UnityEngine.Random.Range(0, spawnSpots.GetLength(1));
@@ -291,11 +293,16 @@ public class InteractablesManager : Singleton<InteractablesManager>
 
                         }
                     }
+                    triesLeft--;
                 }
-                spawnSpots[x, y] = SpawnSpot.OCCUPIED;
-                interactablesToBeSpawned[i].gameObject.SetActive(true);
-                Vector2 laneXY = World.LanesXYs[x, y];
-                interactablesToBeSpawned[i].transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
+                if (freeSpotFound)
+                {
+                    spawnSpots[x, y] = SpawnSpot.OCCUPIED;
+                    interactablesToBeSpawned[i].gameObject.SetActive(true);
+                    Vector2 laneXY = World.LanesXYs[x, y];
+                    interactablesToBeSpawned[i].transform.position = new Vector3(laneXY.x, laneXY.y, positionZ);
+                }
+
             }
 
             if (hangerNeeded)

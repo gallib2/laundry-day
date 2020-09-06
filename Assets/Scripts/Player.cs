@@ -122,7 +122,10 @@ public class Player : Singleton<Player>
 
     void Update()
     {
-
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            GameManager.Instance.DoGameOver();
+        }
         if (!GameManager.GameIsPaused)
         {
             if (GameManager.CurrentGameState == GameManager.GameState.InGame)
@@ -310,10 +313,11 @@ public class Player : Singleton<Player>
     private void CollectWrongItem()
     {
         modelAnimator.SetTrigger("LoseALife");
+        StartCoroutine(Blink());
         SoundSettings.Instance.PlaySound(SoundNames.CollectWrong);
 
         washedItemsCombo = 0;
-        if (collectedClothingItemsPhysicalProperties.Count > 0)
+        if (false&&collectedClothingItemsPhysicalProperties.Count > 0)
         {
             LostClothingItem lostClothingItem = Instantiate(lostClothingItemPreFab, lostClothesSpawnPoint.position, Quaternion.identity);
             lostClothingItem.Spawn(collectedClothingItemsPhysicalProperties.Pop());
@@ -326,6 +330,28 @@ public class Player : Singleton<Player>
         if(gameState == GameManager.GameState.GameOver)
         {
             modelAnimator.SetBool("GameIsOver", true);
+        }
+    }
+
+    [SerializeField] GameObject[] renderedObjects;
+
+    IEnumerator Blink()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            for (int j = 0;j < renderedObjects.Length; j++)
+            {
+                renderedObjects[j].SetActive(false);
+                
+            }
+            yield return new WaitForSeconds(0.03f);
+            for (int j = 0; j < renderedObjects.Length; j++)
+            {
+                renderedObjects[j].SetActive(true);
+
+            }
+            yield return new WaitForSeconds(0.03f);
+
         }
     }
 

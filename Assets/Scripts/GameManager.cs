@@ -101,7 +101,7 @@ public class GameManager : Singleton<GameManager>
         introTimeLeft = introDuration;
         UnPauseGame();
         SoundSettings.StopAllSounds();
-        SoundSettings.Instance.PlaySound(SoundNames.Background);
+        //SoundSettings.Instance.PlaySound(SoundNames.Background);
     }
 
     private void CheckPlayerLives(int lives)
@@ -110,6 +110,11 @@ public class GameManager : Singleton<GameManager>
         {
             GameOver();
         }
+    }
+
+    public void DoGameOver()
+    {
+        GameOver();
     }
 
     private void GameOver()

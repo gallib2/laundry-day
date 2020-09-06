@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Interactable : MonoBehaviour
 {
-    private const float DYING_DISTANCE = 18f;
+    private const float DYING_DISTANCE = 48f;
     [SerializeField] private Collider collider;
 
     private void Start()

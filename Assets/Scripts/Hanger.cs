@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Hanger : MonoBehaviour
 {
-    private const float DYING_DISTANCE = 18f;
+    private const float DYING_DISTANCE = 48f;
 
     private void Update()
     {
